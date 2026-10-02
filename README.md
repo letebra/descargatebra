@@ -29,9 +29,11 @@ Mantén yt-dlp actualizado (`pip install -U yt-dlp`): las plataformas cambian a 
 
 ## API
 
-- `POST /api/download` `{"url": "...", "platform": "instagram|tiktok|youtube|shorts|twitter|facebook|twitch|reddit|pinterest", "format": "mp4|mp3"}` → archivo (ZIP con cabecera `X-Multi: 1` si el post tiene varios)
-- `POST /api/zip` `{"items": [{"url": "...", "platform": "..."}]}` → ZIP (máx. 25)
-- `GET /api/info?url=...&platform=...` → título, miniatura, autor y duración (vista previa)
+- `POST /api/job` `{"items": [{"url", "platform", "format": "mp4|mp3", "quality": "best|1080|720|480|small"}], "zip": false}` → `{"id"}` (máx. 50 con `zip`)
+- `GET /api/job/{id}` → estado y progreso (`status`, `pct`, `downloaded`, `total`, `speed`, `eta`, `current`, `count`, `failed`, `error`)
+- `GET /api/job/{id}/file` → el archivo (ZIP con cabecera `X-Multi: 1` si un post tiene varios archivos)
+- `GET /api/info?url=...&platform=...` → vista previa (vídeo o lista)
+- `GET /api/list?url=...&platform=...` → enlaces de una playlist / canal / perfil (máx. 200)
 
 Monetización y estadísticas: `static/config.js`.
 

@@ -157,6 +157,31 @@ a.tile{text-decoration:none;display:block;transition:border-color .15s}
 a.tile:hover{border-color:var(--brand)}
 a.tile .go-link{color:#a99fff;font-size:13.5px;font-weight:600;margin-top:10px;display:block}
 .disc{text-align:center;color:var(--muted);font-size:12px;margin-top:12px}
+.field{overflow:hidden}
+.bar{position:absolute;left:0;bottom:0;height:3px;width:0;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:width .35s}
+.optr{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.qsel{appearance:none;-webkit-appearance:none;background:var(--bg2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239a9ab5' stroke-width='3'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 11px center;border:1px solid var(--line);color:var(--text);font:600 13.5px Inter,sans-serif;padding:11px 32px 11px 12px;border-radius:11px;cursor:pointer}
+.qsel option{background:var(--card)}
+.preview{flex-wrap:wrap}
+.preview>div{flex:1}
+.listbtn{flex:none;border:0;border-radius:10px;padding:10px 14px;background:var(--brand);color:#fff;font:700 13.5px Inter,sans-serif;cursor:pointer}
+.listbtn:disabled{opacity:.6;cursor:wait}
+@media(max-width:600px){.listbtn{width:100%}}
+.tip{font-size:12.5px;color:var(--muted);text-align:center;margin-top:12px}
+@media(hover:none){.tip{display:none}}
+#historial{padding-top:8px}
+.histhead{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.histhead h2{text-align:left;font-size:22px}
+.histhead button{border:1px solid var(--line);background:transparent;color:var(--muted);font:600 13px Inter,sans-serif;padding:7px 12px;border-radius:9px;cursor:pointer}
+.histhead button:hover{color:var(--text)}
+.hlist{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.hitem{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.hitem img,.hph{width:64px;height:40px;border-radius:7px;object-fit:cover;flex:none;background:var(--line);display:grid;place-items:center;font-weight:800;color:var(--muted)}
+.hinfo{flex:1;min-width:0}
+.hinfo b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hinfo span{display:block;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hitem button{border:0;background:var(--bg2);color:var(--muted);width:34px;height:34px;border-radius:9px;cursor:pointer;flex:none;font-size:14px}
+.hitem button:hover{color:var(--text)}
 </style>
 </head>
 <body>
@@ -218,7 +243,7 @@ a.tile .go-link{color:#a99fff;font-size:13.5px;font-weight:600;margin-top:10px;d
 
       <div class="rows" id="rows"></div>
 
-      <div class="preview" id="preview" hidden><img referrerpolicy="no-referrer" alt=""><div><b></b><span></span></div></div>
+      <div class="preview" id="preview" hidden><img referrerpolicy="no-referrer" alt=""><div><b></b><span></span></div><button class="listbtn" id="listbtn" type="button" hidden data-i="list_load"></button></div>
 
       <div class="opts">
         <label class="check">
@@ -226,9 +251,18 @@ a.tile .go-link{color:#a99fff;font-size:13.5px;font-weight:600;margin-top:10px;d
           <span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg></span>
           <span data-i="multi"></span>
         </label>
-        <div class="seg" id="fmt">
-          <button class="on" data-f="mp4" data-i="fmt_v"></button>
-          <button data-f="mp3" data-i="fmt_a"></button>
+        <div class="optr">
+          <select class="qsel" id="quality">
+            <option value="best" data-i="q_best"></option>
+            <option value="1080" data-i="q_1080"></option>
+            <option value="720" data-i="q_720"></option>
+            <option value="480" data-i="q_480"></option>
+            <option value="small" data-i="q_small"></option>
+          </select>
+          <div class="seg" id="fmt">
+            <button class="on" data-f="mp4" data-i="fmt_v"></button>
+            <button data-f="mp3" data-i="fmt_a"></button>
+          </div>
         </div>
       </div>
       <div class="seg mode" id="mode">
@@ -242,6 +276,7 @@ a.tile .go-link{color:#a99fff;font-size:13.5px;font-weight:600;margin-top:10px;d
         <span id="golabel"></span>
       </button>
       <div class="msg" id="msg"></div>
+      <p class="tip" data-i="tip"></p>
     </div>
 
     <div class="trust">
@@ -251,6 +286,11 @@ a.tile .go-link{color:#a99fff;font-size:13.5px;font-weight:600;margin-top:10px;d
       <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5 9-10"/></svg><span data-i="trust4"></span></span>
     </div>
   </div>
+
+  <section id="historial" hidden>
+    <div class="histhead"><h2 data-i="hist_h"></h2><button id="histclear" type="button" data-i="hist_clear"></button></div>
+    <div class="hlist" id="hist"></div>
+  </section>
 
   <section id="como">
     <h2 data-i="how_h"></h2>
@@ -290,6 +330,7 @@ a.tile .go-link{color:#a99fff;font-size:13.5px;font-weight:600;margin-top:10px;d
     <details><summary data-i="q5"></summary><p data-i="a5"></p></details>
     <details><summary data-i="q6"></summary><p data-i="a6"></p></details>
     <details><summary data-i="q7"></summary><p data-i="a7"></p></details>
+    <details><summary data-i="q9"></summary><p data-i="a9"></p></details>
     <details><summary data-i="q8"></summary><p data-i="a8"></p></details>
   </section>
 </main>
@@ -314,7 +355,7 @@ es: {
   sep:'📄 Por separado', zip:'🗜️ Todo en 1 ZIP',
   hint:'Pega un enlace y aparecerá otra casilla en blanco automáticamente. Puedes mezclar enlaces de distintas plataformas. Si tu navegador pregunta, permite las descargas múltiples.',
   go_mp4:'Descargar MP4', go_mp3:'Descargar MP3', go_all:'Descargar todos', processing:'Procesando…',
-  trust1:'Sin marca de agua*', trust2:'MP4 hasta 1080p y MP3', trust3:'Sin registro', trust4:'Móvil y ordenador',
+  trust1:'Sin marca de agua*', trust2:'MP4 hasta 4K y MP3', trust3:'Sin registro', trust4:'Móvil y ordenador',
   how_h:'Cómo descargar un vídeo', how_lead:'Tres pasos. Sin instalar nada.',
   s1h:'Elige la plataforma', s1p:'Instagram, TikTok, YouTube (largo o Shorts), X, Facebook, Twitch, Reddit o Pinterest.',
   s2h:'Pega el enlace', s2p:'Copia el link desde la app con «Compartir → Copiar enlace» y pégalo arriba.',
@@ -335,7 +376,8 @@ es: {
   q4:'Mi navegador solo descargó un vídeo', a4:'Algunos navegadores bloquean varias descargas seguidas. Acepta el aviso «Permitir descargas múltiples» o elige la opción «Todo en 1 ZIP».',
   q5:'¿Puedo descargar solo el audio?', a5:'Sí. Elige «Audio MP3» antes de pulsar descargar y recibirás el sonido del vídeo en MP3.',
   q6:'¿Puedo usarla como una app en el móvil?', a6:'Sí. En Android, abre el menú del navegador → «Instalar app»; después podrás compartir cualquier vídeo desde TikTok, Instagram, etc. directamente a DescargaTebra. En iPhone, pulsa Compartir → «Añadir a pantalla de inicio».',
-  q7:'¿Qué calidad tienen los vídeos?', a7:'La mejor calidad disponible en MP4, hasta 1080p en YouTube. *TikTok puede incluir marca de agua en algunos vídeos según el origen.',
+  q7:'¿Qué calidad tienen los vídeos?', a7:'Tú eliges: desde «Más ligera» hasta «Máxima (4K)». Hasta 1080p se descarga en H.264, compatible con todo; en 4K puede venir en VP9/AV1, que algunos reproductores antiguos no abren. *TikTok puede incluir marca de agua en algunos vídeos según el origen.',
+  q9:'¿Puedo descargar una lista o un perfil entero?', a9:'Sí. Pega el enlace de una playlist o canal de YouTube, o de un perfil, y pulsa «Cargar todos en descarga múltiple». Se rellenarán las casillas (hasta 200) y podrás bajarlos sueltos o en un ZIP (hasta 50).',
   q8:'¿Es legal?', a8:'Descarga solo contenido del que tengas derechos o permiso del autor, y para uso personal. Respeta los términos de cada plataforma y los derechos de autor.',
   coffee:'☕ Invítame a un café', coffee_msg:'☕ ¿Te ha servido? Invítame a un café',
   foot1:'No estamos afiliados con ninguna de las plataformas mencionadas.', foot2:'Usa esta herramienta de forma responsable y respeta los derechos de autor.',
@@ -346,7 +388,13 @@ es: {
   st_queue:'En cola', st_dl:'Descargando', st_ok:'✓ Listo', st_zip:'✓ En ZIP', st_err:'✕ Error', st_badplat:'Plataforma incorrecta', st_badurl:'Enlace no válido',
   e_invalid:'Enlace no válido.', e_mismatch:'El enlace no corresponde a la plataforma seleccionada.', e_private:'El contenido es privado o la plataforma pide iniciar sesión para verlo.',
   e_notfound:'Contenido no encontrado o no disponible.', e_failed:'No se pudo descargar este enlace. Comprueba que es público.', e_nofile:'No se generó el archivo.',
-  e_empty:'No hay enlaces.', e_toomany:'Máximo 25 enlaces por ZIP.', e_allfailed:'No se pudo descargar ninguno de los enlaces.', e_noaudio:'Este enlace no tiene audio (es una imagen).', e_generic:'Error al descargar.',
+  e_empty:'No hay enlaces.', e_toomany:'Máximo 50 enlaces por ZIP. Para más, usa «Por separado».', e_allfailed:'No se pudo descargar ninguno de los enlaces.', e_noaudio:'Este enlace no tiene audio (es una imagen).', e_generic:'Error al descargar.',
+  q_best:'Máxima (4K)', q_1080:'1080p', q_720:'720p', q_480:'480p', q_small:'Más ligera',
+  st_proc:'Procesando', st_send:'Enviando', eta_left:'quedan', m_dl_n:(i,n)=>`Descargando ${i} de ${n}…`,
+  list_load:'📃 Cargar todos en descarga múltiple', list_loading:'Cargando lista…', list_count:n=>`${n} elementos`, list_unknown:'Lista / perfil',
+  list_loaded:n=>`${n} enlaces cargados. Elige «Por separado» o «Todo en 1 ZIP» y pulsa descargar.`,
+  tip:'⌨️ Consejo: pulsa Ctrl+V en cualquier parte de la página y se descargará solo.',
+  hist_h:'🕘 Historial', hist_clear:'Borrar todo', hist_dl:'Descargar de nuevo', hist_copy:'Copiar enlace', hist_del:'Quitar', copied:'Enlace copiado.',
 },
 en: {
   nav_how:'How it works', nav_feat:'Features', nav_faq:'FAQ',
@@ -357,7 +405,7 @@ en: {
   sep:'📄 Separate files', zip:'🗜️ All in 1 ZIP',
   hint:'Paste a link and a new empty box appears automatically. You can mix links from different platforms. If your browser asks, allow multiple downloads.',
   go_mp4:'Download MP4', go_mp3:'Download MP3', go_all:'Download all', processing:'Processing…',
-  trust1:'No watermark*', trust2:'MP4 up to 1080p & MP3', trust3:'No sign-up', trust4:'Mobile & desktop',
+  trust1:'No watermark*', trust2:'MP4 up to 4K & MP3', trust3:'No sign-up', trust4:'Mobile & desktop',
   how_h:'How to download a video', how_lead:'Three steps. Nothing to install.',
   s1h:'Pick the platform', s1p:'Instagram, TikTok, YouTube (long or Shorts), X, Facebook, Twitch, Reddit or Pinterest.',
   s2h:'Paste the link', s2p:'Copy the link in the app with “Share → Copy link” and paste it above.',
@@ -378,7 +426,8 @@ en: {
   q4:'My browser only downloaded one video', a4:'Some browsers block several downloads in a row. Accept the “Allow multiple downloads” prompt or choose “All in 1 ZIP”.',
   q5:'Can I download just the audio?', a5:'Yes. Choose “Audio MP3” before hitting download and you\'ll get the video\'s sound as an MP3.',
   q6:'Can I use it as an app on my phone?', a6:'Yes. On Android, open the browser menu → “Install app”; then you can share any video from TikTok, Instagram, etc. straight to DescargaTebra. On iPhone, tap Share → “Add to Home Screen”.',
-  q7:'What quality are the videos?', a7:'The best quality available in MP4, up to 1080p on YouTube. *TikTok may include a watermark on some videos depending on the source.',
+  q7:'What quality are the videos?', a7:'You choose: from “Smallest” up to “Max (4K)”. Up to 1080p is downloaded as H.264, which plays everywhere; 4K may come as VP9/AV1, which some old players can\'t open. *TikTok may include a watermark on some videos depending on the source.',
+  q9:'Can I download a whole playlist or profile?', a9:'Yes. Paste a YouTube playlist or channel link, or a profile link, and tap “Load all into bulk download”. The boxes get filled (up to 200) and you can download them as separate files or one ZIP (up to 50).',
   q8:'Is it legal?', a8:'Only download content you own or have the author\'s permission for, and for personal use. Respect each platform\'s terms and copyright.',
   coffee:'☕ Buy me a coffee', coffee_msg:'☕ Found it useful? Buy me a coffee',
   foot1:'We are not affiliated with any of the platforms mentioned.', foot2:'Use this tool responsibly and respect copyright.',
@@ -389,7 +438,13 @@ en: {
   st_queue:'Queued', st_dl:'Downloading', st_ok:'✓ Done', st_zip:'✓ In ZIP', st_err:'✕ Error', st_badplat:'Wrong platform', st_badurl:'Invalid link',
   e_invalid:'Invalid link.', e_mismatch:'The link doesn\'t match the selected platform.', e_private:'The content is private or the platform requires login to view it.',
   e_notfound:'Content not found or unavailable.', e_failed:'Couldn\'t download this link. Make sure it\'s public.', e_nofile:'The file wasn\'t generated.',
-  e_empty:'No links.', e_toomany:'Maximum 25 links per ZIP.', e_allfailed:'None of the links could be downloaded.', e_noaudio:'This link has no audio (it\'s an image).', e_generic:'Download error.',
+  e_empty:'No links.', e_toomany:'Maximum 50 links per ZIP. For more, use “Separate files”.', e_allfailed:'None of the links could be downloaded.', e_noaudio:'This link has no audio (it\'s an image).', e_generic:'Download error.',
+  q_best:'Max (4K)', q_1080:'1080p', q_720:'720p', q_480:'480p', q_small:'Smallest',
+  st_proc:'Processing', st_send:'Sending', eta_left:'left', m_dl_n:(i,n)=>`Downloading ${i} of ${n}…`,
+  list_load:'📃 Load all into bulk download', list_loading:'Loading list…', list_count:n=>`${n} items`, list_unknown:'Playlist / profile',
+  list_loaded:n=>`${n} links loaded. Choose “Separate files” or “All in 1 ZIP” and hit download.`,
+  tip:'⌨️ Tip: press Ctrl+V anywhere on the page and it downloads by itself.',
+  hist_h:'🕘 History', hist_clear:'Clear all', hist_dl:'Download again', hist_copy:'Copy link', hist_del:'Remove', copied:'Link copied.',
 }};
 
 const $ = s => document.querySelector(s);
@@ -406,7 +461,9 @@ const PH = {
   reddit:'https://www.reddit.com/r/…/comments/…',
   pinterest:'https://www.pinterest.com/pin/…'
 };
-let platform = 'instagram', ytKind = 'youtube', mode = 'sep', fmt = 'mp4', busy = false, lang = 'es';
+let platform = 'instagram', ytKind = 'youtube', mode = 'sep', fmt = 'mp4', busy = false, lang = 'es', quality = '1080';
+const infoCache = {};
+try { quality = localStorage.getItem('quality') || quality; } catch {}
 $('#y').textContent = new Date().getFullYear();
 
 const t = (k, ...a) => { const v = T[lang][k] ?? T.es[k]; return typeof v === 'function' ? v(...a) : v; };
@@ -424,6 +481,7 @@ function setLang(l) {
     r.querySelector('.del').title = t('remove');
   });
   renderAffiliates();
+  renderHist();
   updateGoLabel();
   hide();
   try { localStorage.setItem('lang', l); } catch {}
@@ -461,7 +519,7 @@ function setPlatform(p) {
 function makeRow() {
   const row = document.createElement('div');
   row.className = 'row';
-  row.innerHTML = `<div class="field"><span class="n"></span><input type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="${PH[current()]}"><span class="badge"></span><span class="status"></span><button class="ibtn paste" type="button" title="${t('paste')}"><svg width="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg><span>${t('paste')}</span></button><button class="ibtn del" type="button" title="${t('remove')}">✕</button></div>`;
+  row.innerHTML = `<div class="field"><span class="n"></span><input type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="${PH[current()]}"><span class="badge"></span><span class="status"></span><i class="bar"></i><button class="ibtn paste" type="button" title="${t('paste')}"><svg width="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg><span>${t('paste')}</span></button><button class="ibtn del" type="button" title="${t('remove')}">✕</button></div>`;
   const input = row.querySelector('input');
   input.addEventListener('input', () => onInput(row));
   input.addEventListener('keydown', e => { if (e.key === 'Enter') start(); });
@@ -512,6 +570,30 @@ function setStatus(row, kind, text = '') {
   s.className = 'status ' + kind;
   s.innerHTML = kind === 'run' ? `<span class="spin"></span>${text}` : text;
   row.querySelector('.paste').style.display = kind ? 'none' : '';
+  if (kind !== 'run') setBar(row, null);
+}
+
+function setBar(row, pct) { row.querySelector('.bar').style.width = (pct ?? 0) + '%'; }
+
+const fmtBytes = b => b >= 1e9 ? (b / 1e9).toFixed(2) + ' GB' : b >= 1e6 ? (b / 1e6).toFixed(1) + ' MB' : Math.round((b || 0) / 1e3) + ' KB';
+
+// One row's progress: text in the row + bar along its bottom edge.
+function rowProgress(row, st) {
+  if (st.status === 'queued') return setStatus(row, 'run', t('st_queue'));
+  if (st.status === 'processing') { setStatus(row, 'run', t('st_proc')); return setBar(row, 100); }
+  const label = st.status === 'sending' ? t('st_send') + ' ' : '';
+  const txt = st.pct != null ? `${label}${st.pct}%` + (st.speed ? ` · ${fmtBytes(st.speed)}/s` : '') : (label || t('st_dl'));
+  setStatus(row, 'run', txt);
+  setBar(row, st.pct);
+}
+
+// Detailed line under the button (single download).
+function detailText(st) {
+  if (st.status !== 'downloading' || !st.downloaded) return null;
+  const parts = [st.total ? `${fmtBytes(st.downloaded)} / ${fmtBytes(st.total)}` : fmtBytes(st.downloaded)];
+  if (st.speed) parts.push(`${fmtBytes(st.speed)}/s`);
+  if (st.eta) parts.push(`${t('eta_left')} ${fmtDur(st.eta)}`);
+  return parts.join(' · ');
 }
 
 function show(kind, text) {
@@ -542,13 +624,17 @@ function schedulePreview() {
       const res = await fetch(`/api/info?url=${encodeURIComponent(url)}&platform=${current()}`);
       if (!res.ok || seq !== previewSeq) return;
       const d = await res.json();
-      if (seq !== previewSeq || !(d.title || d.thumbnail)) return;
-      const img = preview.querySelector('img');
+      infoCache[url] = d;
+      if (seq !== previewSeq || !(d.title || d.thumbnail || d.type === 'playlist')) return;
+      const img = preview.querySelector('img'), isList = d.type === 'playlist';
       img.hidden = !d.thumbnail;
       if (d.thumbnail) img.src = d.thumbnail;
       img.onerror = () => { img.hidden = true; };
-      preview.querySelector('b').textContent = d.title || LABEL[current()];
-      preview.querySelector('span').textContent = [d.uploader, fmtDur(d.duration)].filter(Boolean).join(' · ');
+      preview.querySelector('b').textContent = isList ? '📃 ' + (d.title || t('list_unknown')) : d.title || LABEL[current()];
+      preview.querySelector('span').textContent = isList
+        ? [d.uploader, d.count ? t('list_count', d.count) : ''].filter(Boolean).join(' · ')
+        : [d.uploader, fmtDur(d.duration)].filter(Boolean).join(' · ');
+      Object.assign($('#listbtn'), {hidden: !isList, disabled: false, textContent: t('list_load')});
       preview.hidden = false;
     } catch {}
   }, 450);
@@ -613,23 +699,49 @@ function loadJSZip() {
 }
 
 // Posts with several files (carousels) arrive as a ZIP: unpack them as loose files.
-async function saveResponse(res, fallback) {
-  const blob = await res.blob(), name = filenameFrom(res, fallback);
-  if (res.headers.get('X-Multi') !== '1') return save(blob, name);
+async function saveResult({blob, name, multi}) {
+  if (!multi) return save(blob, name);
   try {
     const zip = await (await loadJSZip()).loadAsync(blob);
     for (const f of Object.values(zip.files)) if (!f.dir) save(await f.async('blob'), f.name);
   } catch { save(blob, name); }
 }
 
+const errText = code => typeof code === 'string' && T.es['e_' + code] ? t('e_' + code) : t('e_generic');
+
 async function post(path, body) {
   const res = await fetch(path, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
   if (!res.ok) {
     let d;
     try { d = (await res.json()).detail; } catch {}
-    throw new Error(typeof d === 'string' && T.es['e_' + d] ? t('e_' + d) : t('e_generic'));
+    throw new Error(errText(d));
   }
   return res;
+}
+
+// Server job: create -> poll progress -> stream the file to the browser (with progress too).
+async function runJob(body, onState) {
+  const {id} = await (await post('/api/job', body)).json();
+  for (;;) {
+    await new Promise(r => setTimeout(r, 700));
+    const res = await fetch(`/api/job/${id}`);
+    if (!res.ok) throw new Error(t('e_generic'));
+    const st = await res.json();
+    if (st.status === 'error') { onState(st); throw new Error(errText(st.error)); }
+    onState(st);
+    if (st.status === 'done') break;
+  }
+  const res = await fetch(`/api/job/${id}/file`);
+  if (!res.ok) throw new Error(t('e_generic'));
+  const total = +res.headers.get('Content-Length') || 0, reader = res.body.getReader(), chunks = [];
+  let got = 0;
+  for (;;) {
+    const {done, value} = await reader.read();
+    if (done) break;
+    chunks.push(value); got += value.length;
+    onState({status: 'sending', pct: total ? Math.round(100 * got / total) : null});
+  }
+  return {blob: new Blob(chunks, {type: res.headers.get('Content-Type') || ''}), name: filenameFrom(res, 'video'), multi: res.headers.get('X-Multi') === '1'};
 }
 
 function collect() {
@@ -649,31 +761,68 @@ function collect() {
   return items;
 }
 
+async function loadList(url) {
+  const btn = $('#listbtn');
+  Object.assign(btn, {disabled: true, textContent: t('list_loading')});
+  try {
+    const res = await fetch(`/api/list?url=${encodeURIComponent(url)}&platform=${current()}`);
+    const d = await res.json();
+    if (!res.ok) throw new Error(errText(d.detail));
+    if (!multi.checked) { multi.checked = true; multi.onchange(); }
+    rowsEl.replaceChildren();
+    const rows = d.entries.map(e => { const row = makeRow(); row.querySelector('input').value = e.url; return row; });
+    rows.forEach(onInput);
+    show('info', t('list_loaded', d.entries.length));
+  } catch (e) {
+    Object.assign(btn, {disabled: false, textContent: t('list_load')});
+    show('err', e.message);
+  }
+}
+$('#listbtn').onclick = () => loadList(rowsEl.querySelector('input').value.trim());
+
 async function start() {
   if (busy) return;
   hide();
   const items = collect();
   if (items === null) return show('err', multi.checked ? t('m_bad_multi') : t('m_bad_one', LABEL[current()]));
   if (!items.length) { rowsEl.querySelector('input').focus(); return show('err', t('m_empty')); }
+  if (!multi.checked && infoCache[items[0].url]?.type === 'playlist') return loadList(items[0].url);
 
   busy = true; go.disabled = true;
   $('#golabel').textContent = t('processing');
+  const asItem = it => ({url: it.url, platform: it.platform, format: fmt, quality});
   try {
     if (multi.checked && mode === 'zip' && items.length > 1) {
       items.forEach(i => setStatus(i.row, 'run', t('st_queue')));
-      show('info', t('m_zip_prep', items.length));
-      const res = await post('/api/zip', {items: items.map(({url, platform}) => ({url, platform, format: fmt}))});
-      save(await res.blob(), filenameFrom(res, 'descargatebra.zip'));
-      items.forEach(i => setStatus(i.row, 'ok', t('st_zip')));
+      const r = await runJob({items: items.map(asItem), zip: true}, st => {
+        if (st.status === 'sending') return show('info', `${t('st_send')} ZIP ${st.pct ?? ''}%`);
+        items.forEach((it, i) => {
+          if (st.failed?.includes(i)) setStatus(it.row, 'err', t('st_err'));
+          else if (i < st.current) setStatus(it.row, 'ok', t('st_zip'));
+          else if (i === st.current) rowProgress(it.row, st);
+        });
+        if (st.status !== 'error') show('info', t('m_dl_n', Math.min(st.current + 1, st.count), st.count));
+      });
+      save(r.blob, r.name);
+      items.forEach((it, i) => {
+        if (it.row.querySelector('.status.err')) return;
+        setStatus(it.row, 'ok', t('st_zip'));
+        addHist({url: it.url, platform: it.platform, title: infoCache[it.url]?.title});
+      });
       show('ok', t('m_zip_ok'));
     } else {
       let ok = 0;
-      for (const it of items) {
-        setStatus(it.row, 'run', t('st_dl'));
+      for (const [n, it] of items.entries()) {
+        setStatus(it.row, 'run', t('st_queue'));
         try {
-          const res = await post('/api/download', {url: it.url, platform: it.platform, format: fmt});
-          await saveResponse(res, 'video.' + fmt);
+          const r = await runJob({items: [asItem(it)]}, st => {
+            rowProgress(it.row, st);
+            if (items.length > 1) show('info', t('m_dl_n', n + 1, items.length));
+            else { const d = detailText(st); d ? show('info', d) : hide(); }
+          });
+          await saveResult(r);
           setStatus(it.row, 'ok', t('st_ok')); ok++;
+          addHist({url: it.url, platform: it.platform, title: infoCache[it.url]?.title || r.name.replace(/\.[^.]+$/, '')});
         } catch (e) {
           setStatus(it.row, 'err', t('st_err'));
           it.row.querySelector('.field').classList.add('bad');
@@ -690,6 +839,74 @@ async function start() {
     busy = false; go.disabled = false; updateGoLabel();
   }
 }
+
+/* quality */
+const qsel = $('#quality');
+qsel.value = quality;
+qsel.onchange = () => { quality = qsel.value; try { localStorage.setItem('quality', quality); } catch {} };
+const syncQuality = () => { qsel.hidden = fmt !== 'mp4'; };
+document.querySelectorAll('#fmt button').forEach(b => b.addEventListener('click', syncQuality));
+
+/* paste anywhere: Ctrl+V outside the boxes pastes the link and starts */
+document.addEventListener('paste', e => {
+  if (e.target.closest?.('input, textarea, select') || busy) return;
+  const url = (e.clipboardData?.getData('text') || '').match(/https?:\/\/\S+/)?.[0];
+  if (!url || !detect(url)) return;
+  e.preventDefault();
+  const rows = [...rowsEl.children];
+  const row = multi.checked ? rows.find(r => !r.querySelector('input').value.trim()) || makeRow() : rows[0];
+  row.querySelector('input').value = url;
+  onInput(row);
+  if (!multi.checked) start();
+});
+
+/* history (stored in this browser only) */
+const HKEY = 'history';
+function loadHist() { try { return JSON.parse(localStorage.getItem(HKEY)) || []; } catch { return []; } }
+function saveHist(h) { try { localStorage.setItem(HKEY, JSON.stringify(h.slice(0, 50))); } catch {} }
+function addHist({url, platform, title}) {
+  const h = loadHist().filter(x => !(x.url === url && x.format === fmt));
+  h.unshift({url, platform, title: title || '', thumb: infoCache[url]?.thumbnail || '', format: fmt, quality, t: Date.now()});
+  saveHist(h); renderHist();
+}
+function relTime(ts) {
+  const rtf = new Intl.RelativeTimeFormat(lang, {numeric: 'auto'}), s = (ts - Date.now()) / 1000;
+  for (const [u, n] of [['day', 86400], ['hour', 3600], ['minute', 60]]) if (Math.abs(s) >= n) return rtf.format(Math.round(s / n), u);
+  return rtf.format(0, 'minute');
+}
+function renderHist() {
+  const h = loadHist();
+  $('#historial').hidden = !h.length;
+  $('#hist').replaceChildren(...h.map((x, i) => {
+    const el = document.createElement('div');
+    el.className = 'hitem';
+    el.innerHTML = `${x.thumb ? '<img referrerpolicy="no-referrer" alt="">' : '<div class="hph"></div>'}<div class="hinfo"><b></b><span></span></div><button data-a="dl">⬇</button><button data-a="copy">🔗</button><button data-a="del">✕</button>`;
+    const img = el.querySelector('img');
+    if (img) { img.src = x.thumb; img.onerror = () => img.replaceWith(Object.assign(document.createElement('div'), {className: 'hph', textContent: (LABEL[x.platform] || '?')[0]})); }
+    else el.querySelector('.hph').textContent = (LABEL[x.platform] || '?')[0];
+    el.querySelector('b').textContent = x.title || x.url;
+    el.querySelector('span').textContent = [LABEL[x.platform], x.format === 'mp3' ? 'MP3' : 'MP4 ' + (x.quality === 'best' ? '4K' : x.quality === 'small' ? t('q_small') : x.quality + 'p'), relTime(x.t)].join(' · ');
+    const [bDl, bCopy, bDel] = el.querySelectorAll('button');
+    bDl.title = t('hist_dl'); bCopy.title = t('hist_copy'); bDel.title = t('hist_del');
+    bDl.onclick = () => redownload(x);
+    bCopy.onclick = () => navigator.clipboard?.writeText(x.url).then(() => show('info', t('copied')), () => {});
+    bDel.onclick = () => { const hh = loadHist(); hh.splice(i, 1); saveHist(hh); renderHist(); };
+    return el;
+  }));
+}
+function redownload(x) {
+  if (busy) return;
+  if (multi.checked) { multi.checked = false; multi.onchange(); }
+  document.querySelector(`#fmt button[data-f="${x.format}"]`)?.click();
+  if (x.format === 'mp4' && x.quality) { qsel.value = quality = x.quality; }
+  setPlatform(x.platform);
+  const row = rowsEl.children[0];
+  row.querySelector('input').value = x.url;
+  onInput(row);
+  document.querySelector('.card').scrollIntoView({behavior: 'smooth', block: 'center'});
+  start();
+}
+$('#histclear').onclick = () => { saveHist([]); renderHist(); };
 
 go.onclick = start;
 makeRow();

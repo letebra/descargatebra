@@ -1,6 +1,6 @@
 # Descargatebra
 
-Web para descargar vídeos de **Instagram, TikTok, YouTube (largo) y YouTube Shorts** en MP4.
+Web para descargar vídeos de **Instagram, TikTok, YouTube (largo), YouTube Shorts y X (Twitter)** en MP4.
 Descarga individual o múltiple (archivos sueltos o todo en un ZIP).
 
 Backend: FastAPI + [yt-dlp](https://github.com/yt-dlp/yt-dlp) + ffmpeg. Frontend: `static/index.html` (HTML/CSS/JS sin dependencias).
@@ -29,5 +29,5 @@ Mantén yt-dlp actualizado (`pip install -U yt-dlp`): las plataformas cambian a 
 
 ## API
 
-- `POST /api/download` `{"url": "...", "platform": "instagram|tiktok|youtube|shorts"}` → MP4
+- `POST /api/download` `{"url": "...", "platform": "instagram|tiktok|youtube|shorts|twitter"}` → MP4
 - `POST /api/zip` `{"items": [{"url": "...", "platform": "..."}]}` → ZIP (máx. 25)

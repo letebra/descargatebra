@@ -19,6 +19,7 @@ MAX_BATCH = 25
 PLATFORM_HOSTS = {
     "instagram": ("instagram.com",),
     "tiktok": ("tiktok.com",),
+    "twitter": ("x.com", "twitter.com"),
     "youtube": ("youtube.com", "youtu.be"),
     "shorts": ("youtube.com", "youtu.be"),
 }
@@ -47,6 +48,8 @@ def detect_platform(url: str) -> str | None:
         return "instagram"
     if host.endswith("tiktok.com"):
         return "tiktok"
+    if host == "x.com" or host.endswith((".x.com", "twitter.com")):
+        return "twitter"
     if host.endswith("youtube.com") or host == "youtu.be":
         return "shorts" if "/shorts/" in url else "youtube"
     return None

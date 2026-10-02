@@ -20,6 +20,11 @@ BASE = Path(__file__).parent
 STATIC = BASE / "static"
 MAX_BATCH = 25
 SITE = "https://descarga.letebra.com"
+# Optional cookies.txt (Netscape format) to download content that needs login.
+# On Render: Environment -> Secret Files -> cookies.txt
+COOKIES = next((p for p in (os.environ.get("COOKIES_FILE"), "/etc/secrets/cookies.txt", str(BASE / "cookies.txt"))
+                if p and os.path.isfile(p)), None)
+LOGIN_HINTS = ("login", "log in", "sign in", "401", "403", "private", "checkpoint")
 
 PLATFORM_HOSTS = {
     "instagram": ("instagram.com",),
@@ -87,6 +92,15 @@ def safe_name(title: str, ext: str) -> str:
     return (name[:80].strip() or "video") + "." + ext
 
 
+def cookie_copy(workdir: str) -> str | None:
+    # yt-dlp writes cookies back on exit and /etc/secrets is read-only: use a private copy.
+    if not COOKIES:
+        return None
+    dst = os.path.join(workdir, ".cookies.txt")
+    shutil.copy(COOKIES, dst)
+    return dst
+
+
 def ydl_error(e: Exception) -> HTTPException:
     msg = str(e).lower()
     if "private" in msg or "login" in msg or "sign in" in msg:
@@ -104,6 +118,9 @@ def fetch_ytdlp(url: str, platform: str, fmt: str, workdir: str) -> list[tuple[P
         "no_warnings": True,
         "noprogress": True,
         "max_filesize": 2 * 1024**3,
+        "socket_timeout": 20,
+        "retries": 2,
+        "cookiefile": cookie_copy(workdir),
     }
     if fmt == "mp3":
         opts["format"] = "bestaudio/best"
@@ -123,33 +140,39 @@ def fetch_ytdlp(url: str, platform: str, fmt: str, workdir: str) -> list[tuple[P
     return [(files[0], safe_name(info.get("title") or info["id"], fmt))]
 
 
-def fetch_gallery(url: str, workdir: str) -> list[tuple[Path, str]]:
-    """Photos, carousels and image posts (gallery-dl)."""
+def fetch_gallery(url: str, workdir: str) -> tuple[list[tuple[Path, str]], str]:
+    """Photos, carousels and image posts (gallery-dl). Returns (files, error output)."""
+    cmd = [sys.executable, "-m", "gallery_dl", "-q", "-D", workdir,
+           "--sleep-request", "0", "-R", "1", "--http-timeout", "20"]
+    cookies = cookie_copy(workdir)
+    if cookies:
+        cmd += ["-C", cookies]
     try:
-        subprocess.run(
-            [sys.executable, "-m", "gallery_dl", "-q", "-D", workdir, url],
-            timeout=180, capture_output=True,
-        )
+        err = subprocess.run(cmd + [url], timeout=90, capture_output=True, text=True).stderr
     except subprocess.TimeoutExpired:
-        pass
-    files = sorted(p for p in Path(workdir).iterdir() if p.is_file() and not p.name.endswith((".part", ".json")))
-    return [(p, p.name) for p in files]
+        err = "timeout"
+    files = sorted(p for p in Path(workdir).iterdir()
+                   if p.is_file() and not p.name.startswith(".") and not p.name.endswith((".part", ".json")))
+    return [(p, p.name) for p in files], err.lower()
 
 
 def fetch(url: str, platform: str, fmt: str, workdir: str) -> list[tuple[Path, str]]:
+    gallery_err = None
     # Instagram posts (/p/) can be carousels with photos: try gallery-dl first.
     if fmt == "mp4" and platform == "instagram" and "/p/" in url:
-        files = fetch_gallery(url, tempfile.mkdtemp(dir=workdir))
+        files, gallery_err = fetch_gallery(url, tempfile.mkdtemp(dir=workdir))
         if files:
             return files
     try:
         return fetch_ytdlp(url, platform, fmt, workdir)
     except HTTPException as e:
-        # No video in the post (photo, image tweet, pin...): fall back to images.
-        if fmt == "mp4" and e.detail == "failed":
-            files = fetch_gallery(url, tempfile.mkdtemp(dir=workdir))
+        # No video in the post (photo, image tweet, pin...): fall back to images (once).
+        if fmt == "mp4" and e.detail == "failed" and gallery_err is None:
+            files, gallery_err = fetch_gallery(url, tempfile.mkdtemp(dir=workdir))
             if files:
                 return files
+        if gallery_err and any(h in gallery_err for h in LOGIN_HINTS):
+            raise HTTPException(403, "private")
         if fmt == "mp3" and e.detail == "failed":
             raise HTTPException(422, "noaudio")
         raise
@@ -175,12 +198,16 @@ def add_unique(zf: zipfile.ZipFile, path: Path, name: str, used: set):
 @app.get("/api/info")
 def info(url: str, platform: str):
     url = validate(Item(url=url, platform=platform))
-    opts = {"noplaylist": True, "quiet": True, "no_warnings": True, "skip_download": True}
+    tmp = tempfile.mkdtemp(prefix="dt_")
+    opts = {"noplaylist": True, "quiet": True, "no_warnings": True, "skip_download": True,
+            "socket_timeout": 15, "retries": 1, "cookiefile": cookie_copy(tmp)}
     try:
         with yt_dlp.YoutubeDL(opts) as ydl:
             data = ydl.extract_info(url, download=False, process=False)
     except yt_dlp.utils.DownloadError as e:
         raise ydl_error(e)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
     thumb = data.get("thumbnail") or next((t.get("url") for t in reversed(data.get("thumbnails") or []) if t.get("url")), None)
     return {
         "title": data.get("title") or data.get("description") or "",

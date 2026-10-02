@@ -34,3 +34,9 @@ Mantén yt-dlp actualizado (`pip install -U yt-dlp`): las plataformas cambian a 
 - `GET /api/info?url=...&platform=...` → título, miniatura, autor y duración (vista previa)
 
 Monetización y estadísticas: `static/config.js`.
+
+## Cookies (contenido que pide iniciar sesión)
+
+Para fotos/carruseles de Instagram, vídeos con restricción de edad o cuando YouTube bloquea el servidor,
+sube un `cookies.txt` (formato Netscape) en Render → Environment → Secret Files con el nombre `cookies.txt`.
+Se usa automáticamente con yt-dlp y gallery-dl. No lo subas nunca al repositorio.

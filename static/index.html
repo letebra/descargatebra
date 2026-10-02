@@ -182,6 +182,33 @@ a.tile .go-link{color:#a99fff;font-size:13.5px;font-weight:600;margin-top:10px;d
 .hinfo span{display:block;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hitem button{border:0;background:var(--bg2);color:var(--muted);width:34px;height:34px;border-radius:9px;cursor:pointer;flex:none;font-size:14px}
 .hitem button:hover{color:var(--text)}
+.xtools{margin-top:12px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:0}
+.xtools summary{padding:12px 14px;font-size:14px;font-weight:600}
+.xtools summary em{font-style:normal;color:var(--brand2);font-size:12.5px;margin-left:6px}
+.xgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:0 14px 14px}
+@media(max-width:600px){.xgrid{grid-template-columns:1fr}}
+.xfield label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
+.xfield small{display:block;color:var(--muted);font-size:12px;margin-top:6px}
+.xrow{display:flex;gap:8px;align-items:center}
+.xrow input{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--text);font:600 14px Inter,sans-serif;padding:10px 12px;outline:0}
+.xrow input:focus{border-color:var(--brand)}
+.xrow .qsel{flex:1;min-width:0}
+.metabtn{flex:none;border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:var(--card);color:var(--text);font:700 13px Inter,sans-serif;cursor:pointer}
+.meta{margin-top:10px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.mtop{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
+.mtop img{width:220px;max-width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:10px;background:var(--line)}
+.mbtns{display:flex;flex-direction:column;gap:8px}
+.mbtns button,.mbtns a{border:1px solid var(--line);background:var(--card);color:var(--text);font:600 13px Inter,sans-serif;padding:9px 12px;border-radius:9px;cursor:pointer;text-decoration:none;text-align:center}
+.mrows{display:grid;grid-template-columns:max-content 1fr auto;gap:6px 12px;align-items:center;margin-top:14px;font-size:13.5px}
+.mrows dt{color:var(--muted)}
+.mrows dd{min-width:0;overflow-wrap:anywhere}
+.cbtn{border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 6px;border-radius:6px}
+.cbtn:hover{color:var(--text);background:var(--card)}
+.mblock{margin-top:14px}
+.mblock h4{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);margin-bottom:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips span{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:12.5px}
+.mdesc{white-space:pre-wrap;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;max-height:220px;overflow:auto;color:var(--text)}
 </style>
 </head>
 <body>
@@ -243,7 +270,8 @@ a.tile .go-link{color:#a99fff;font-size:13.5px;font-weight:600;margin-top:10px;d
 
       <div class="rows" id="rows"></div>
 
-      <div class="preview" id="preview" hidden><img referrerpolicy="no-referrer" alt=""><div><b></b><span></span></div><button class="listbtn" id="listbtn" type="button" hidden data-i="list_load"></button></div>
+      <div class="preview" id="preview" hidden><img referrerpolicy="no-referrer" alt=""><div><b></b><span></span></div><button class="metabtn" id="metabtn" type="button" hidden data-i="meta_btn"></button><button class="listbtn" id="listbtn" type="button" hidden data-i="list_load"></button></div>
+      <div class="meta" id="meta" hidden></div>
 
       <div class="opts">
         <label class="check">
@@ -268,8 +296,36 @@ a.tile .go-link{color:#a99fff;font-size:13.5px;font-weight:600;margin-top:10px;d
       <div class="seg mode" id="mode">
         <button class="on" data-m="sep" data-i="sep"></button>
         <button data-m="zip" data-i="zip"></button>
+        <button data-m="merge" data-i="merge"></button>
       </div>
       <p class="hint" id="hint" data-i="hint"></p>
+
+      <details class="xtools" id="xtools">
+        <summary><span data-i="tools_h"></span><em id="xcount"></em></summary>
+        <div class="xgrid">
+          <div class="xfield" id="trimbox">
+            <label data-i="trim_h"></label>
+            <div class="xrow"><input id="tstart" inputmode="decimal" autocomplete="off" placeholder="0:00"><span>→</span><input id="tend" inputmode="decimal" autocomplete="off" placeholder="1:30"></div>
+            <small data-i="trim_hint"></small>
+          </div>
+          <div class="xfield">
+            <label data-i="comp_h"></label>
+            <div class="xrow">
+              <select class="qsel" id="csize">
+                <option value="" data-i="comp_none"></option>
+                <option value="10">10 MB · Discord</option>
+                <option value="16">16 MB · WhatsApp</option>
+                <option value="25">25 MB</option>
+                <option value="50">50 MB</option>
+                <option value="100">100 MB</option>
+                <option value="custom" data-i="comp_custom"></option>
+              </select>
+              <input id="ccustom" inputmode="decimal" placeholder="MB" hidden>
+            </div>
+            <small data-i="comp_hint"></small>
+          </div>
+        </div>
+      </details>
 
       <button class="go" id="go">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg>
@@ -394,6 +450,16 @@ es: {
   list_load:'📃 Cargar todos en descarga múltiple', list_loading:'Cargando lista…', list_count:n=>`${n} elementos`, list_unknown:'Lista / perfil',
   list_loaded:n=>`${n} enlaces cargados. Elige «Por separado» o «Todo en 1 ZIP» y pulsa descargar.`,
   tip:'⌨️ Consejo: pulsa Ctrl+V en cualquier parte de la página y se descargará solo.',
+  merge:'🔗 Unir en 1 vídeo', go_merge:'Unir y descargar', st_merged:'✓ Unido', m_merge_ok:'Vídeo unido descargado.',
+  stage_trim:'Recortando', stage_compress:'Comprimiendo', stage_merge:'Uniendo',
+  tools_h:'🛠️ Recortar y comprimir', trim_h:'✂️ Recortar (desde → hasta)', trim_hint:'Vacío = vídeo completo. Formato 1:23 o 83 (segundos). Solo en descarga normal.',
+  comp_h:'🗜️ Tamaño máximo', comp_none:'Sin límite', comp_custom:'Otro…', comp_hint:'Si ocupa más, se comprime (y baja de resolución si hace falta) hasta caber.',
+  x_active:n=>`(${n} activa${n > 1 ? 's' : ''})`,
+  e_badtrim:'Revisa el recorte: usa 1:23 o segundos, y el final debe ser mayor que el inicio.', e_toosmall:'No cabe en ese tamaño ni a la mínima calidad. Prueba un tamaño mayor o recórtalo.', e_procfail:'Error al procesar el vídeo.',
+  meta_btn:'📋 Datos', meta_loading:'Cargando datos…', copied2:'Copiado.', m_thumb:'⬇ Miniatura HD', m_copyall:'📋 Copiar todo',
+  md_title:'Título', md_author:'Autor', md_followers:'Seguidores', md_date:'Fecha', md_duration:'Duración', md_views:'Visitas', md_likes:'Me gusta',
+  md_comments:'Comentarios', md_reposts:'Compartidos', md_res:'Resolución máx.', md_cat:'Categoría', md_lang:'Idioma', md_music:'Música',
+  md_age:'Edad mínima', md_id:'ID', md_url:'Enlace', md_hashtags:'Hashtags', md_tags:'Etiquetas (tags)', md_desc:'Descripción', md_copy:'Copiar',
   hist_h:'🕘 Historial', hist_clear:'Borrar todo', hist_dl:'Descargar de nuevo', hist_copy:'Copiar enlace', hist_del:'Quitar', copied:'Enlace copiado.',
 },
 en: {
@@ -444,6 +510,16 @@ en: {
   list_load:'📃 Load all into bulk download', list_loading:'Loading list…', list_count:n=>`${n} items`, list_unknown:'Playlist / profile',
   list_loaded:n=>`${n} links loaded. Choose “Separate files” or “All in 1 ZIP” and hit download.`,
   tip:'⌨️ Tip: press Ctrl+V anywhere on the page and it downloads by itself.',
+  merge:'🔗 Join into 1 video', go_merge:'Join & download', st_merged:'✓ Joined', m_merge_ok:'Joined video downloaded.',
+  stage_trim:'Trimming', stage_compress:'Compressing', stage_merge:'Joining',
+  tools_h:'🛠️ Trim & compress', trim_h:'✂️ Trim (from → to)', trim_hint:'Empty = full video. Format 1:23 or 83 (seconds). Single download only.',
+  comp_h:'🗜️ Max size', comp_none:'No limit', comp_custom:'Other…', comp_hint:'If it\'s bigger, it gets compressed (and downscaled if needed) until it fits.',
+  x_active:n=>`(${n} active)`,
+  e_badtrim:'Check the trim: use 1:23 or seconds, and the end must be after the start.', e_toosmall:'It doesn\'t fit in that size even at minimum quality. Try a bigger size or trim it.', e_procfail:'Error processing the video.',
+  meta_btn:'📋 Info', meta_loading:'Loading info…', copied2:'Copied.', m_thumb:'⬇ HD thumbnail', m_copyall:'📋 Copy all',
+  md_title:'Title', md_author:'Author', md_followers:'Followers', md_date:'Date', md_duration:'Duration', md_views:'Views', md_likes:'Likes',
+  md_comments:'Comments', md_reposts:'Shares', md_res:'Max resolution', md_cat:'Category', md_lang:'Language', md_music:'Music',
+  md_age:'Age limit', md_id:'ID', md_url:'Link', md_hashtags:'Hashtags', md_tags:'Tags', md_desc:'Description', md_copy:'Copy',
   hist_h:'🕘 History', hist_clear:'Clear all', hist_dl:'Download again', hist_copy:'Copy link', hist_del:'Remove', copied:'Link copied.',
 }};
 
@@ -488,7 +564,8 @@ function setLang(l) {
 }
 
 function updateGoLabel() {
-  if (!busy) $('#golabel').textContent = multi.checked ? t('go_all') : t(fmt === 'mp3' ? 'go_mp3' : 'go_mp4');
+  if (!busy) $('#golabel').textContent = multi.checked ? t(mode === 'merge' ? 'go_merge' : 'go_all') : t(fmt === 'mp3' ? 'go_mp3' : 'go_mp4');
+  syncTools();
 }
 
 function detect(url) {
@@ -580,7 +657,10 @@ const fmtBytes = b => b >= 1e9 ? (b / 1e9).toFixed(2) + ' GB' : b >= 1e6 ? (b / 
 // One row's progress: text in the row + bar along its bottom edge.
 function rowProgress(row, st) {
   if (st.status === 'queued') return setStatus(row, 'run', t('st_queue'));
-  if (st.status === 'processing') { setStatus(row, 'run', t('st_proc')); return setBar(row, 100); }
+  if (st.status === 'processing') {
+    setStatus(row, 'run', (st.stage ? t('stage_' + st.stage) : t('st_proc')) + (st.pct != null ? ` ${st.pct}%` : ''));
+    return setBar(row, st.pct ?? 100);
+  }
   const label = st.status === 'sending' ? t('st_send') + ' ' : '';
   const txt = st.pct != null ? `${label}${st.pct}%` + (st.speed ? ` · ${fmtBytes(st.speed)}/s` : '') : (label || t('st_dl'));
   setStatus(row, 'run', txt);
@@ -617,6 +697,7 @@ function schedulePreview() {
   clearTimeout(previewTimer);
   const seq = ++previewSeq;
   preview.hidden = true;
+  $('#meta').hidden = true;
   const input = rowsEl.querySelector('input'), url = input?.value.trim();
   if (multi.checked || !url || !detect(url)) return;
   previewTimer = setTimeout(async () => {
@@ -635,6 +716,7 @@ function schedulePreview() {
         ? [d.uploader, d.count ? t('list_count', d.count) : ''].filter(Boolean).join(' · ')
         : [d.uploader, fmtDur(d.duration)].filter(Boolean).join(' · ');
       Object.assign($('#listbtn'), {hidden: !isList, disabled: false, textContent: t('list_load')});
+      $('#metabtn').hidden = isList;
       preview.hidden = false;
     } catch {}
   }, 450);
@@ -661,6 +743,7 @@ document.querySelectorAll('.chip').forEach(c => c.onclick = () => { setPlatform(
 document.querySelectorAll('#mode button').forEach(b => b.onclick = () => {
   mode = b.dataset.m;
   document.querySelectorAll('#mode button').forEach(x => x.classList.toggle('on', x === b));
+  updateGoLabel();
 });
 document.querySelectorAll('#fmt button').forEach(b => b.onclick = () => {
   fmt = b.dataset.f;
@@ -790,9 +873,27 @@ async function start() {
 
   busy = true; go.disabled = true;
   $('#golabel').textContent = t('processing');
-  const asItem = it => ({url: it.url, platform: it.platform, format: fmt, quality});
+  const tools = toolValues();
+  if (!tools) { busy = false; go.disabled = false; updateGoLabel(); return show('err', t('e_badtrim')); }
+  const asItem = it => ({url: it.url, platform: it.platform, format: fmt, quality, ...tools});
   try {
-    if (multi.checked && mode === 'zip' && items.length > 1) {
+    if (multi.checked && mode === 'merge' && items.length > 1) {
+      items.forEach(i => setStatus(i.row, 'run', t('st_queue')));
+      const r = await runJob({items: items.map(asItem), merge: true}, st => {
+        if (st.status === 'sending') return show('info', `${t('st_send')} ${st.pct ?? ''}%`);
+        items.forEach((it, i) => {
+          if (st.failed?.includes(i)) setStatus(it.row, 'err', t('st_err'));
+          else if (i < st.current) setStatus(it.row, 'ok', '✓');
+          else if (i === st.current) rowProgress(it.row, st);
+        });
+        if (st.status === 'processing') show('info', `${st.stage ? t('stage_' + st.stage) : t('st_proc')} ${st.pct ?? ''}%`);
+        else if (st.status !== 'error') show('info', t('m_dl_n', Math.min(st.current + 1, st.count), st.count));
+      });
+      await saveResult(r);
+      items.forEach(it => { if (!it.row.querySelector('.status.err')) setStatus(it.row, 'ok', t('st_merged')); });
+      addHist({url: items[0].url, platform: items[0].platform, title: r.name.replace(/\.[^.]+$/, '')});
+      show('ok', t('m_merge_ok'));
+    } else if (multi.checked && mode === 'zip' && items.length > 1) {
       items.forEach(i => setStatus(i.row, 'run', t('st_queue')));
       const r = await runJob({items: items.map(asItem), zip: true}, st => {
         if (st.status === 'sending') return show('info', `${t('st_send')} ZIP ${st.pct ?? ''}%`);
@@ -839,6 +940,96 @@ async function start() {
     busy = false; go.disabled = false; updateGoLabel();
   }
 }
+
+/* tools: trim + compress */
+function parseTime(v) {
+  v = v.trim().replace(',', '.');
+  if (!v) return null;
+  if (!/^\d+(\.\d+)?$|^\d+(:\d{1,2}){1,2}(\.\d+)?$/.test(v)) return NaN;
+  return v.split(':').reduce((acc, p) => acc * 60 + parseFloat(p), 0);
+}
+function toolValues() {
+  const out = {};
+  if (!multi.checked) {
+    const st = parseTime($('#tstart').value), en = parseTime($('#tend').value);
+    if (Number.isNaN(st) || Number.isNaN(en) || (en != null && en <= (st || 0))) return null;
+    if (st) out.start = st;
+    if (en != null) out.end = en;
+  }
+  const c = $('#csize').value, mb = c === 'custom' ? parseFloat($('#ccustom').value.replace(',', '.')) : parseFloat(c);
+  if (mb > 0) out.target_mb = mb;
+  return out;
+}
+function syncTools() {
+  $('#trimbox').hidden = multi.checked;
+  $('#ccustom').hidden = $('#csize').value !== 'custom';
+  const n = (!multi.checked && ($('#tstart').value.trim() || $('#tend').value.trim()) ? 1 : 0) + ($('#csize').value ? 1 : 0);
+  $('#xcount').textContent = n ? t('x_active', n) : '';
+  if (n) $('#xtools').open = true;
+}
+['#tstart', '#tend', '#ccustom'].forEach(s => $(s).addEventListener('input', syncTools));
+$('#csize').onchange = syncTools;
+
+/* video info panel */
+const nf = n => n == null ? '' : new Intl.NumberFormat(lang).format(n);
+function copyText(text) { navigator.clipboard?.writeText(text).then(() => show('info', t('copied2')), () => {}); }
+async function showMeta() {
+  const panel = $('#meta'), url = rowsEl.querySelector('input').value.trim();
+  if (!panel.hidden) { panel.hidden = true; return; }
+  panel.hidden = false;
+  panel.textContent = t('meta_loading');
+  try {
+    const res = await fetch(`/api/meta?url=${encodeURIComponent(url)}&platform=${current()}`);
+    const d = await res.json();
+    if (!res.ok) throw new Error(errText(d.detail));
+    renderMeta(d);
+  } catch (e) { panel.textContent = e.message; }
+}
+function renderMeta(d) {
+  const panel = $('#meta');
+  const rows = [
+    ['md_title', d.title], ['md_author', d.uploader], ['md_followers', nf(d.followers)],
+    ['md_date', d.date ? new Date(d.date).toLocaleDateString(lang) : ''], ['md_duration', fmtDur(d.duration)],
+    ['md_views', nf(d.views)], ['md_likes', nf(d.likes)], ['md_comments', nf(d.comments)], ['md_reposts', nf(d.reposts)],
+    ['md_res', d.resolution], ['md_cat', (d.categories || []).join(', ')], ['md_lang', d.language], ['md_music', d.music],
+    ['md_age', d.age_limit ? d.age_limit + '+' : ''], ['md_id', d.id], ['md_url', d.url],
+  ].filter(([, v]) => v);
+  const all = [...rows.map(([k, v]) => `${t(k)}: ${v}`),
+    d.hashtags.length ? `${t('md_hashtags')}: ${d.hashtags.join(' ')}` : '',
+    d.tags.length ? `${t('md_tags')}: ${d.tags.join(', ')}` : '',
+    d.description ? `${t('md_desc')}:\n${d.description}` : ''].filter(Boolean).join('\n');
+  panel.innerHTML = `<div class="mtop">${d.thumbnail_hd ? '<img referrerpolicy="no-referrer" alt="">' : ''}<div class="mbtns">${d.thumbnail_hd ? '<a id="mthumb"></a>' : ''}<button id="mall"></button></div></div><dl class="mrows"></dl>`;
+  const img = panel.querySelector('img');
+  if (img) {
+    img.src = d.thumbnail_hd;
+    img.onerror = () => { if (d.thumbnail && img.src !== d.thumbnail) img.src = d.thumbnail; };
+    Object.assign(panel.querySelector('#mthumb'), {textContent: t('m_thumb'), href: `/api/thumb?url=${encodeURIComponent(d.thumbnail_hd)}&name=${encodeURIComponent(d.title || 'miniatura')}`});
+  }
+  Object.assign(panel.querySelector('#mall'), {textContent: t('m_copyall'), onclick: () => copyText(all)});
+  const dl = panel.querySelector('.mrows');
+  for (const [k, v] of rows) {
+    const dt = Object.assign(document.createElement('dt'), {textContent: t(k)});
+    const dd = document.createElement('dd');
+    if (k === 'md_url' || (k === 'md_author' && d.uploader_url)) dd.append(Object.assign(document.createElement('a'), {href: k === 'md_url' ? v : d.uploader_url, target: '_blank', rel: 'noopener', textContent: v}));
+    else dd.textContent = v;
+    const b = Object.assign(document.createElement('button'), {className: 'cbtn', textContent: '📋', title: t('md_copy'), onclick: () => copyText(String(v))});
+    dl.append(dt, dd, b);
+  }
+  const block = (key, text, body) => {
+    const el = document.createElement('div');
+    el.className = 'mblock';
+    el.innerHTML = '<h4><span></span><button class="cbtn"></button></h4>';
+    el.querySelector('span').textContent = t(key);
+    Object.assign(el.querySelector('button'), {textContent: '📋 ' + t('md_copy'), onclick: () => copyText(text)});
+    el.append(body);
+    panel.append(el);
+  };
+  const chips = list => { const c = document.createElement('div'); c.className = 'chips'; c.append(...list.map(x => Object.assign(document.createElement('span'), {textContent: x}))); return c; };
+  if (d.hashtags.length) block('md_hashtags', d.hashtags.join(' '), chips(d.hashtags));
+  if (d.tags.length) block('md_tags', d.tags.join(', '), chips(d.tags));
+  if (d.description) block('md_desc', d.description, Object.assign(document.createElement('div'), {className: 'mdesc', textContent: d.description}));
+}
+$('#metabtn').onclick = showMeta;
 
 /* quality */
 const qsel = $('#quality');

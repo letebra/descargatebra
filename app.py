@@ -1,3 +1,4 @@
+import json
 import mimetypes
 import os
 import re
@@ -11,10 +12,11 @@ import uuid
 import zipfile
 from pathlib import Path
 from urllib.parse import quote, urlparse
+from urllib.request import Request, urlopen
 
 import yt_dlp
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse
+from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from starlette.background import BackgroundTask
@@ -23,6 +25,9 @@ BASE = Path(__file__).parent
 STATIC = BASE / "static"
 MAX_BATCH = 50
 MAX_LIST = 200
+MAX_MERGE = 20
+VIDEO_EXT = {".mp4", ".mkv", ".webm", ".mov", ".m4v"}
+AUDIO_EXT = {".mp3", ".m4a", ".aac", ".ogg", ".opus"}
 SITE = "https://descarga.letebra.com"
 # Optional cookies.txt (Netscape format) to download content that needs login.
 # On Render: Environment -> Secret Files -> cookies.txt
@@ -76,11 +81,15 @@ class Item(BaseModel):
     platform: str
     format: str = "mp4"
     quality: str = "1080"
+    start: float | None = None  # trim, seconds
+    end: float | None = None
+    target_mb: float | None = None  # compress to at most this size
 
 
 class JobRequest(BaseModel):
     items: list[Item]
     zip: bool = False
+    merge: bool = False
 
 
 class Job:
@@ -92,6 +101,7 @@ class Job:
         self.count, self.current, self.failed = count, 0, []
         self.downloaded = self.total = self.speed = self.eta = None
         self.error = None
+        self.stage, self.proc_pct = None, None  # ffmpeg step: trim | compress | merge
         self.result = None  # (path, filename, media_type, multi)
 
     def hook(self, d: dict):
@@ -110,9 +120,12 @@ class Job:
 
     def state(self) -> dict:
         pct = round(100 * self.downloaded / self.total) if self.downloaded and self.total else None
+        if self.status == "processing" and self.proc_pct is not None:
+            pct = round(self.proc_pct)
         return {"status": self.status, "pct": min(pct, 100) if pct is not None else None, "downloaded": self.downloaded,
                 "total": self.total, "speed": self.speed, "eta": self.eta, "current": self.current,
-                "count": self.count, "failed": self.failed, "error": self.error}
+                "count": self.count, "failed": self.failed, "error": self.error,
+                "stage": self.stage if self.status == "processing" else None}
 
 
 JOBS: dict[str, Job] = {}
@@ -132,6 +145,10 @@ def validate(item: Item) -> str:
         raise HTTPException(400, "invalid")
     if not host_ok(item.platform, (urlparse(url).hostname or "").lower()):
         raise HTTPException(400, "mismatch")
+    if (item.start is not None and item.start < 0) or (item.end is not None and item.end <= (item.start or 0)):
+        raise HTTPException(400, "badtrim")
+    if item.target_mb is not None and not 1 <= item.target_mb <= 4000:
+        raise HTTPException(400, "invalid")
     return url
 
 
@@ -272,6 +289,77 @@ def info(url: str, platform: str):
     }
 
 
+HASHTAG = re.compile(r"#[^\s#.,!?¡¿;:()\[\]\"']+")
+
+
+@app.get("/api/meta")
+def meta(url: str, platform: str):
+    """Everything we can read about a video: text, numbers, tags and the best thumbnail."""
+    url = validate(Item(url=url, platform=platform))
+    tmp = tempfile.mkdtemp(prefix="dt_")
+    opts = {"noplaylist": True, "quiet": True, "no_warnings": True, "skip_download": True,
+            "socket_timeout": 15, "retries": 1, "cookiefile": cookie_copy(tmp)}
+    try:
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            d = ydl.extract_info(url, download=False, process=False)
+            for _ in range(2):
+                if d.get("_type") not in ("url", "url_transparent") or not d.get("url"):
+                    break
+                d = ydl.extract_info(d["url"], download=False, process=False)
+    except yt_dlp.utils.DownloadError as e:
+        raise ydl_error(e)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+    thumbs = [t for t in d.get("thumbnails") or [] if t.get("url")]
+    best = max(thumbs, key=lambda t: (t.get("width") or 0) * (t.get("height") or 0) or t.get("preference") or 0, default=None)
+    desc = d.get("description") or ""
+    date = d.get("upload_date")
+    heights = [f.get("height") for f in d.get("formats") or [] if f.get("height")]
+    return {
+        "title": d.get("title") or "",
+        "uploader": d.get("uploader") or d.get("channel") or d.get("creator") or "",
+        "uploader_url": d.get("uploader_url") or d.get("channel_url") or "",
+        "followers": d.get("channel_follower_count"),
+        "date": f"{date[:4]}-{date[4:6]}-{date[6:]}" if date and len(date) == 8 else None,
+        "timestamp": d.get("timestamp"),
+        "duration": d.get("duration"),
+        "views": d.get("view_count"),
+        "likes": d.get("like_count"),
+        "comments": d.get("comment_count"),
+        "reposts": d.get("repost_count"),
+        "resolution": f"{max(heights)}p" if heights else None,
+        "categories": d.get("categories") or [],
+        "tags": d.get("tags") or [],
+        "hashtags": list(dict.fromkeys(HASHTAG.findall(f"{d.get('title') or ''} {desc}"))),
+        "description": desc,
+        "language": d.get("language"),
+        "age_limit": d.get("age_limit"),
+        "music": " - ".join(x for x in (d.get("artist") or d.get("creator"), d.get("track")) if x) if d.get("track") else None,
+        "thumbnail": d.get("thumbnail") or (best or {}).get("url"),
+        "thumbnail_hd": (best or {}).get("url") or d.get("thumbnail"),
+        "url": d.get("webpage_url") or url,
+        "id": d.get("id"),
+    }
+
+
+@app.get("/api/thumb")
+def thumb(url: str, name: str = "miniatura"):
+    """Downloads a thumbnail through the server (image CDNs block direct downloads)."""
+    if not re.match(r"^https?://", url):
+        raise HTTPException(400, "invalid")
+    try:
+        with urlopen(Request(url, headers={"User-Agent": "Mozilla/5.0"}), timeout=15) as r:
+            ctype = r.headers.get("Content-Type", "").split(";")[0]
+            data = r.read(20 * 1024 * 1024 + 1)
+    except Exception:
+        raise HTTPException(404, "notfound")
+    if not ctype.startswith("image/") or len(data) > 20 * 1024 * 1024:
+        raise HTTPException(400, "invalid")
+    ext = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp"}.get(ctype, "jpg")
+    fname = safe_name(name, ext)
+    return Response(data, media_type=ctype, headers={"Content-Disposition": f"attachment; filename*=UTF-8''{quote(fname)}"})
+
+
 def entry_url(e: dict) -> str | None:
     u = e.get("webpage_url") or e.get("url")
     if u and u.startswith("http"):
@@ -312,7 +400,8 @@ def list_entries(url: str, platform: str):
 
 
 ERR_TXT = {"private": "privado o requiere iniciar sesión", "notfound": "no encontrado", "noaudio": "sin audio",
-           "failed": "no se pudo descargar", "nofile": "no se generó el archivo"}
+           "failed": "no se pudo descargar", "nofile": "no se generó el archivo",
+           "toosmall": "no cabe en ese tamaño", "procfail": "error al procesar"}
 
 
 def zip_files(files: list[tuple[Path, str]], zip_path: Path):
@@ -322,11 +411,157 @@ def zip_files(files: list[tuple[Path, str]], zip_path: Path):
             add_unique(zf, path, name, used)
 
 
-def run_job(job: Job, items: list[tuple[str, Item]], as_zip: bool):
+def probe(path: Path) -> dict:
+    out = subprocess.run(["ffprobe", "-v", "error", "-print_format", "json", "-show_format", "-show_streams", str(path)],
+                         capture_output=True, text=True).stdout
+    data = json.loads(out or "{}")
+    video = next((st for st in data.get("streams", []) if st.get("codec_type") == "video"
+                  and not st.get("disposition", {}).get("attached_pic")), None)
+    return {
+        "duration": float(data.get("format", {}).get("duration") or 0),
+        "width": int(video["width"]) if video else 0,
+        "height": int(video["height"]) if video else 0,
+        "audio": any(st.get("codec_type") == "audio" for st in data.get("streams", [])),
+    }
+
+
+def run_ffmpeg(args: list, job: Job, duration: float, stage: str):
+    """Runs ffmpeg reporting progress (0-100) into the job."""
+    job.status, job.stage, job.proc_pct = "processing", stage, 0
+    proc = subprocess.Popen(["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", "-nostats", "-progress", "pipe:1", *args],
+                            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
+    for line in proc.stdout:
+        if line.startswith("out_time_us=") and duration:
+            try:
+                job.proc_pct = min(99, int(line.split("=")[1]) / 1e6 / duration * 100)
+            except ValueError:
+                pass
+    if proc.wait() != 0:
+        raise HTTPException(500, "procfail")
+
+
+def is_video(p: Path) -> bool:
+    return p.suffix.lower() in VIDEO_EXT
+
+
+def is_audio(p: Path) -> bool:
+    return p.suffix.lower() in AUDIO_EXT
+
+
+def trim(path: Path, start: float | None, end: float | None, job: Job) -> Path:
+    if not (is_video(path) or is_audio(path)):
+        return path
+    out = path.with_name(path.stem + "_cut" + (".mp4" if is_video(path) else ".mp3"))
+    length = (end - (start or 0)) if end else max(probe(path)["duration"] - (start or 0), 0)
+    args = (["-ss", str(start)] if start else []) + ["-i", str(path)] + (["-t", str(length)] if end else [])
+    if is_video(path):
+        args += ["-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart"]
+    else:
+        args += ["-c:a", "libmp3lame", "-b:a", "192k"]
+    run_ffmpeg(args + [str(out)], job, length, "trim")
+    return out
+
+
+def compress(path: Path, target_mb: float, job: Job) -> Path:
+    """Re-encodes to fit in target_mb (MiB), lowering resolution when the bitrate gets small."""
+    target = target_mb * 1024 * 1024
+    if path.stat().st_size <= target or not (is_video(path) or is_audio(path)):
+        return path
+    info = probe(path)
+    dur = info["duration"] or 1
+    out = path.with_name(path.stem + "_small" + (".mp4" if is_video(path) else ".mp3"))
+    budget = target * 8 / dur / 1000 * 0.92  # kbps for the whole file
+    for _ in range(3):
+        if is_audio(path):
+            abr = int(max(32, min(320, budget)))
+            run_ffmpeg(["-i", str(path), "-vn", "-c:a", "libmp3lame", "-b:a", f"{abr}k", str(out)], job, dur, "compress")
+        else:
+            abr = (128 if budget > 800 else 64 if budget > 200 else 32) if info["audio"] else 0
+            vbr = int(budget - abr)
+            if vbr < 40:
+                raise HTTPException(422, "toosmall")
+            cap = 1080 if vbr > 2500 else 720 if vbr > 1200 else 480 if vbr > 600 else 360 if vbr > 250 else 240
+            w, h = info["width"], info["height"]
+            vf = []
+            if min(w, h) > cap:
+                vf = ["-vf", f"scale=-2:{cap}" if w >= h else f"scale={cap}:-2"]
+            audio = ["-c:a", "aac", "-b:a", f"{abr}k"] if abr else ["-an"]
+            run_ffmpeg(["-i", str(path), *vf, "-c:v", "libx264", "-preset", "veryfast", "-b:v", f"{vbr}k",
+                        "-maxrate", f"{int(vbr * 1.2)}k", "-bufsize", f"{vbr * 2}k", *audio, "-movflags", "+faststart",
+                        str(out)], job, dur, "compress")
+        size = out.stat().st_size
+        if size <= target:
+            return out
+        budget *= target / size * 0.9  # overshot: retry a bit lower
+    raise HTTPException(422, "toosmall")
+
+
+def merge(paths: list[Path], job: Job, audio_only: bool, out: Path) -> Path:
+    """Joins clips into one file; different sizes are letterboxed to the first clip's frame."""
+    infos = [probe(p) for p in paths]
+    total = sum(i["duration"] for i in infos)
+    args, filters, labels = [], [], ""
+    for p in paths:
+        args += ["-i", str(p)]
+    if audio_only:
+        labels = "".join(f"[{i}:a]" for i in range(len(paths)))
+        filters.append(f"{labels}concat=n={len(paths)}:v=0:a=1[a]")
+        run_ffmpeg([*args, "-filter_complex", ";".join(filters), "-map", "[a]", "-c:a", "libmp3lame", "-b:a", "192k",
+                    str(out)], job, total, "merge")
+        return out
+    w, h = infos[0]["width"] or 1280, infos[0]["height"] or 720
+    scale = min(1, 1920 / max(w, h))
+    w, h = int(w * scale) // 2 * 2, int(h * scale) // 2 * 2
+    extra = len(paths)
+    for i, inf in enumerate(infos):
+        filters.append(f"[{i}:v]scale={w}:{h}:force_original_aspect_ratio=decrease,pad={w}:{h}:(ow-iw)/2:(oh-ih)/2,"
+                       f"setsar=1,fps=30,format=yuv420p[v{i}]")
+        if inf["audio"]:
+            filters.append(f"[{i}:a]aresample=44100,aformat=channel_layouts=stereo[a{i}]")
+        else:  # silent track so every clip has audio for concat
+            args += ["-f", "lavfi", "-t", str(inf["duration"] or 1), "-i", "anullsrc=r=44100:cl=stereo"]
+            filters.append(f"[{extra}:a]aformat=channel_layouts=stereo[a{i}]")
+            extra += 1
+        labels += f"[v{i}][a{i}]"
+    filters.append(f"{labels}concat=n={len(paths)}:v=1:a=1[v][a]")
+    run_ffmpeg([*args, "-filter_complex", ";".join(filters), "-map", "[v]", "-map", "[a]", "-c:v", "libx264",
+                "-preset", "veryfast", "-crf", "21", "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart", str(out)],
+               job, total, "merge")
+    return out
+
+
+def finish(path: Path, name: str, it: Item, job: Job, allow_trim: bool) -> tuple[Path, str]:
+    if allow_trim and (it.start or it.end):
+        path = trim(path, it.start, it.end, job)
+    if it.target_mb:
+        path = compress(path, it.target_mb, job)
+    return path, Path(name).stem + path.suffix if path.suffix != Path(name).suffix else name
+
+
+def run_job(job: Job, items: list[tuple[str, Item]], as_zip: bool, as_merge: bool):
     try:
-        if not as_zip:
+        if as_merge:
+            clips, errors = [], []
+            for n, (url, it) in enumerate(items):
+                job.current, job.status, job.downloaded, job.total = n, "downloading", None, None
+                try:
+                    files = fetch(url, it.platform, it.format, it.quality, tempfile.mkdtemp(dir=job.workdir), job)
+                except HTTPException:
+                    job.failed.append(n)
+                    continue
+                clips += [p for p, _ in files if (is_audio(p) if it.format == "mp3" else is_video(p))]
+            if not clips:
+                raise HTTPException(422, "allfailed")
+            job.current = len(items)
+            first = items[0][1]
+            ext = ".mp3" if first.format == "mp3" else ".mp4"
+            path = clips[0] if len(clips) == 1 else merge(clips, job, first.format == "mp3", Path(job.workdir) / f"merged{ext}")
+            path, name = finish(path, f"DescargaTebra - unido{ext}", first, job, allow_trim=False)
+            job.result = (path, name, mimetypes.guess_type(name)[0] or "application/octet-stream", False)
+        elif not as_zip:
             url, it = items[0]
             files = fetch(url, it.platform, it.format, it.quality, job.workdir, job)
+            files = [finish(p, name, it, job, allow_trim=len(files) == 1) for p, name in files]
             if len(files) == 1:
                 path, name = files[0]
                 job.result = (path, name, mimetypes.guess_type(name)[0] or "application/octet-stream", False)
@@ -343,6 +578,7 @@ def run_job(job: Job, items: list[tuple[str, Item]], as_zip: bool):
                     sub = tempfile.mkdtemp(dir=job.workdir)
                     try:
                         files = fetch(url, it.platform, it.format, it.quality, sub, job)
+                        files = [finish(p, name, it, job, allow_trim=False) for p, name in files]
                     except HTTPException as e:
                         job.failed.append(n)
                         errors.append(f"{n + 1}. {url} -> {ERR_TXT.get(e.detail, e.detail)}")
@@ -374,13 +610,13 @@ def cleanup_jobs():
 def create_job(req: JobRequest):
     if not req.items:
         raise HTTPException(400, "empty")
-    if req.zip and len(req.items) > MAX_BATCH:
+    if (req.zip and len(req.items) > MAX_BATCH) or (req.merge and len(req.items) > MAX_MERGE):
         raise HTTPException(400, "toomany")
     items = [(validate(i), i) for i in req.items]
     cleanup_jobs()
     job = Job(len(items))
     JOBS[job.id] = job
-    threading.Thread(target=run_job, args=(job, items, req.zip), daemon=True).start()
+    threading.Thread(target=run_job, args=(job, items, req.zip, req.merge), daemon=True).start()
     return {"id": job.id}
 
 

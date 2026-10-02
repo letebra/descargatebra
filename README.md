@@ -34,6 +34,10 @@ Mantén yt-dlp actualizado (`pip install -U yt-dlp`): las plataformas cambian a 
 - `GET /api/job/{id}/file` → el archivo (ZIP con cabecera `X-Multi: 1` si un post tiene varios archivos)
 - `GET /api/info?url=...&platform=...` → vista previa (vídeo o lista)
 - `GET /api/list?url=...&platform=...` → enlaces de una playlist / canal / perfil (máx. 200)
+- `GET /api/meta?url=...&platform=...` → todos los datos (título, autor, fechas, visitas, likes, tags, hashtags, descripción, miniatura HD)
+- `GET /api/thumb?url=...&name=...` → descarga de la miniatura
+
+Opciones por elemento en `/api/job`: `start`/`end` (recorte, segundos), `target_mb` (comprimir). `merge: true` une todos en un vídeo (máx. 20).
 
 Monetización y estadísticas: `static/config.js`.
 

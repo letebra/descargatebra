@@ -3,16 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Descargatebra — Descarga vídeos de Instagram, TikTok, YouTube y X en MP4</title>
-<meta name="description" content="Descarga vídeos de Instagram, TikTok, YouTube, YouTube Shorts y X (Twitter) en MP4 en segundos. Gratis, sin registro y con descarga múltiple.">
+<title>Descargatebra — Descarga vídeos de TikTok, Instagram, YouTube, X y más en MP4</title>
+<meta name="description" content="Descarga vídeos de Instagram, TikTok, YouTube, Shorts, X (Twitter), Facebook, Twitch, Reddit y Pinterest en MP4 o MP3 en segundos. Gratis, sin registro y con descarga múltiple.">
+<link rel="canonical" href="https://descarga.letebra.com/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%236d5efc'/%3E%3Cpath d='M12 6v8m0 0-3.5-3.5M12 14l3.5-3.5M7 18h10' stroke='white' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<meta name="theme-color" content="#0b0b14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Descargatebra">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#0b0b14;--bg2:#12121f;--card:#171728;--line:#26263d;--text:#ececf5;--muted:#9a9ab5;
   --brand:#6d5efc;--brand2:#b15cff;--ok:#22c55e;--err:#ef4444;--warn:#f59e0b;
-  --ig:linear-gradient(45deg,#f9ce34,#ee2a7b,#6228d7);--tt:#25f4ee;--yt:#ff0033;
+  --tt:#25f4ee;--yt:#ff0033;
   --r:14px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -24,12 +31,16 @@ a{color:inherit}
 
 /* header */
 header{position:sticky;top:0;z-index:10;background:rgba(11,11,20,.8);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-header .wrap{display:flex;align-items:center;justify-content:space-between;height:62px}
+header .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;height:62px}
 .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;text-decoration:none;letter-spacing:-.3px}
 .logo i{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--brand),var(--brand2));display:grid;place-items:center}
+.hright{display:flex;align-items:center;gap:22px}
 nav{display:flex;gap:22px;font-size:14px;color:var(--muted)}
 nav a{text-decoration:none}nav a:hover{color:var(--text)}
-@media(max-width:600px){nav{display:none}}
+.lang{display:flex;gap:2px;background:var(--bg2);border:1px solid var(--line);padding:3px;border-radius:9px}
+.lang button{border:0;background:transparent;color:var(--muted);font:700 12.5px Inter,sans-serif;padding:5px 9px;border-radius:6px;cursor:pointer}
+.lang button.on{background:var(--card);color:var(--text);box-shadow:0 0 0 1px var(--line)}
+@media(max-width:700px){nav{display:none}}
 
 /* hero */
 .hero{position:relative;padding:56px 0 40px;text-align:center}
@@ -39,8 +50,8 @@ h1 span{background:linear-gradient(90deg,var(--brand),var(--brand2),#ff5ca8);-we
 
 /* card */
 .card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;margin-top:30px;box-shadow:0 20px 60px -20px rgba(0,0,0,.6);text-align:left}
-.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;background:var(--bg2);padding:6px;border-radius:var(--r);border:1px solid var(--line)}
-.tab{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 8px;border:0;border-radius:10px;background:transparent;color:var(--muted);font:600 15px Inter,sans-serif;cursor:pointer;transition:.15s}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;background:var(--bg2);padding:6px;border-radius:var(--r);border:1px solid var(--line)}
+.tab{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 6px;border:0;border-radius:10px;background:transparent;color:var(--muted);font:600 15px Inter,sans-serif;cursor:pointer;transition:.15s}
 .tab:hover{color:var(--text)}
 .tab.on{background:var(--card);color:var(--text);box-shadow:0 0 0 1px var(--line),0 4px 14px rgba(0,0,0,.35)}
 .tab svg{width:19px;height:19px;flex:none}
@@ -64,6 +75,10 @@ h1 span{background:linear-gradient(90deg,var(--brand),var(--brand2),#ff5ca8);-we
 .b-twitter{background:rgba(255,255,255,.1);color:#e7e9ea}
 .b-tiktok{background:rgba(37,244,238,.12);color:var(--tt)}
 .b-youtube,.b-shorts{background:rgba(255,0,51,.13);color:#ff5c7a}
+.b-facebook{background:rgba(24,119,242,.15);color:#6aa8ff}
+.b-twitch{background:rgba(145,70,255,.16);color:#b48aff}
+.b-reddit{background:rgba(255,69,0,.14);color:#ff8a5c}
+.b-pinterest{background:rgba(230,0,35,.14);color:#ff6b80}
 .ibtn{border:0;background:transparent;color:var(--muted);cursor:pointer;padding:0 12px;height:100%;display:grid;place-items:center;font:600 13px Inter,sans-serif;gap:6px}
 .ibtn:hover{color:var(--text)}
 .paste{display:flex;align-items:center;gap:6px;margin-right:6px;padding:7px 11px;border-radius:9px;background:var(--line)}
@@ -72,6 +87,12 @@ h1 span{background:linear-gradient(90deg,var(--brand),var(--brand2),#ff5ca8);-we
 .spin{width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:s .7s linear infinite}
 @keyframes s{to{transform:rotate(360deg)}}
 
+.preview{display:flex;gap:14px;align-items:center;margin-top:12px;padding:10px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r)}
+.preview img{width:112px;height:72px;object-fit:cover;border-radius:9px;background:var(--line);flex:none}
+.preview div{min-width:0}
+.preview b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:14.5px;line-height:1.35}
+.preview span{display:block;color:var(--muted);font-size:13px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
 .opts{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:14px}
 .check{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;font-weight:600;font-size:14.5px}
 .check input{display:none}
@@ -79,10 +100,11 @@ h1 span{background:linear-gradient(90deg,var(--brand),var(--brand2),#ff5ca8);-we
 .check input:checked+.box{background:var(--brand);border-color:var(--brand)}
 .box svg{opacity:0;width:14px}
 .check input:checked+.box svg{opacity:1}
-.mode{display:none;gap:6px;background:var(--bg2);border:1px solid var(--line);padding:4px;border-radius:11px}
+.seg{display:flex;gap:6px;background:var(--bg2);border:1px solid var(--line);padding:4px;border-radius:11px}
+.seg button{border:0;background:transparent;color:var(--muted);font:600 13.5px Inter,sans-serif;padding:8px 12px;border-radius:8px;cursor:pointer}
+.seg button.on{background:var(--card);color:var(--text);box-shadow:0 0 0 1px var(--line)}
+.mode{display:none;margin-top:10px;width:max-content;max-width:100%}
 .mode.show{display:flex}
-.mode button{border:0;background:transparent;color:var(--muted);font:600 13.5px Inter,sans-serif;padding:8px 12px;border-radius:8px;cursor:pointer}
-.mode button.on{background:var(--card);color:var(--text);box-shadow:0 0 0 1px var(--line)}
 .hint{font-size:12.5px;color:var(--muted);margin-top:10px;display:none}
 .hint.show{display:block}
 
@@ -95,7 +117,14 @@ h1 span{background:linear-gradient(90deg,var(--brand),var(--brand2),#ff5ca8);-we
 .msg.err{background:rgba(239,68,68,.1);color:#fca5a5;border:1px solid rgba(239,68,68,.3)}
 .msg.ok{background:rgba(34,197,94,.1);color:#86efac;border:1px solid rgba(34,197,94,.3)}
 .msg.info{background:rgba(109,94,252,.1);color:#c4bcff;border:1px solid rgba(109,94,252,.3)}
-@media(max-width:600px){.card{padding:14px}.paste span,.chip small{display:none}.paste{padding:7px 9px}.ibtn{padding:0 9px}.field .n{padding-left:10px;min-width:24px}.field input{padding:14px 8px;font-size:15px}.tabs{grid-template-columns:repeat(2,1fr)}.tab{font-size:14px;gap:6px}.badge{display:none!important}.chip{font-size:13.5px}}
+.msg a{color:inherit;font-weight:700;margin-left:6px}
+@media(max-width:600px){
+  .card{padding:14px}.paste span,.chip small{display:none}.paste{padding:7px 9px}.ibtn{padding:0 9px}
+  .field .n{padding-left:10px;min-width:24px}.field input{padding:14px 8px;font-size:15px}
+  .tabs{gap:4px;padding:4px}.tab{flex-direction:column;gap:4px;font-size:11.5px;padding:9px 2px}.tab svg{width:20px;height:20px}
+  .badge{display:none!important}.chip{font-size:13.5px}
+  .preview img{width:84px;height:60px}
+}
 .trust{display:flex;justify-content:center;flex-wrap:wrap;gap:8px 22px;margin-top:20px;color:var(--muted);font-size:13.5px}
 .trust span{display:flex;align-items:center;gap:6px}
 .trust svg{width:16px;color:var(--ok)}
@@ -123,7 +152,6 @@ footer{border-top:1px solid var(--line);margin-top:64px;padding:28px 0 40px;colo
 footer p+p{margin-top:8px}
 .coffee{display:inline-flex;align-items:center;gap:8px;margin-bottom:18px;padding:10px 18px;border-radius:999px;background:#ffdd00;color:#1a1a1a;font-weight:700;font-size:14px;text-decoration:none;transition:transform .1s}
 .coffee:hover{transform:translateY(-1px)}
-.msg a{color:inherit;font-weight:700;margin-left:6px}
 .tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:28px}
 a.tile{text-decoration:none;display:block;transition:border-color .15s}
 a.tile:hover{border-color:var(--brand)}
@@ -135,15 +163,18 @@ a.tile .go-link{color:#a99fff;font-size:13.5px;font-weight:600;margin-top:10px;d
 
 <header>
   <div class="wrap">
-    <a class="logo" href="#"><i><svg width="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg></i>Descargatebra</a>
-    <nav><a href="#como">Cómo funciona</a><a href="#ventajas">Ventajas</a><a href="#faq">Preguntas</a></nav>
+    <a class="logo" href="/"><i><svg width="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg></i>Descargatebra</a>
+    <div class="hright">
+      <nav><a href="#como" data-i="nav_how"></a><a href="#ventajas" data-i="nav_feat"></a><a href="#faq" data-i="nav_faq"></a></nav>
+      <div class="lang"><button data-l="es">ES</button><button data-l="en">EN</button></div>
+    </div>
   </div>
 </header>
 
 <main class="wrap">
   <div class="hero">
-    <h1>Descarga vídeos de <span>Instagram, TikTok, YouTube y X</span> en MP4</h1>
-    <p class="sub">Elige la plataforma, pega el enlace y pulsa descargar. En segundos tendrás el vídeo en tu dispositivo. Gratis y sin registro.</p>
+    <h1 data-i="h1"></h1>
+    <p class="sub" data-i="sub"></p>
 
     <div class="card">
       <div class="tabs" role="tablist">
@@ -163,122 +194,265 @@ a.tile .go-link{color:#a99fff;font-size:13.5px;font-weight:600;margin-top:10px;d
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.21-6.82-5.97 6.82H1.67l7.73-8.84L1.25 2.25h6.83l4.71 6.23zm-1.16 17.52h1.83L7.08 4.13H5.12z"/></svg>
           X
         </button>
+        <button class="tab" data-p="facebook">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#1877f2"/><path fill="#fff" d="M15.5 8.1h-1.9c-.4 0-.6.3-.6.7v1.8h2.5l-.4 2.6H13V23h-2.8v-9.8H8.2v-2.6h2V8.4c0-1.8 1.1-2.9 2.9-2.9h2.4z"/></svg>
+          Facebook
+        </button>
+        <button class="tab" data-p="twitch">
+          <svg viewBox="0 0 24 24" fill="#9146ff"><path d="M4.3 2 3 5.4v13.8h4.7V22h2.6l2.7-2.8h3.9L22 14V2zm16 11.2-3 3h-4.7l-2.6 2.6v-2.6H6V3.7h14.3zM17.4 7v5.2h-1.7V7zm-4.7 0v5.2H11V7z"/></svg>
+          Twitch
+        </button>
+        <button class="tab" data-p="reddit">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#ff4500"/><ellipse cx="12" cy="14" rx="6.2" ry="4.2" fill="#fff"/><circle cx="9.6" cy="13.6" r="1" fill="#ff4500"/><circle cx="14.4" cy="13.6" r="1" fill="#ff4500"/><circle cx="16.6" cy="6.4" r="1.3" fill="#fff"/><path d="M12 9.8 13.1 5.6l3.5.8" stroke="#fff" stroke-width="1" fill="none"/></svg>
+          Reddit
+        </button>
+        <button class="tab" data-p="pinterest">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#e60023"/><path fill="#fff" d="M12.3 5C8.4 5 6.4 7.8 6.4 10.1c0 1.4.5 2.7 1.7 3.1.2.1.4 0 .4-.2l.2-.7c.1-.2 0-.3-.1-.5-.3-.4-.6-1-.6-1.7 0-2.2 1.6-4.1 4.2-4.1 2.3 0 3.6 1.4 3.6 3.3 0 2.5-1.1 4.6-2.7 4.6-.9 0-1.6-.7-1.4-1.6.3-1.1.8-2.3.8-3.1 0-.7-.4-1.3-1.2-1.3-.9 0-1.7 1-1.7 2.3 0 .8.3 1.4.3 1.4l-1.1 4.6c-.3 1.4 0 3.1 0 3.2 0 .1.1.1.2 0 .1-.1 1-1.3 1.4-2.5l.5-2.1c.3.5 1.1 1 2 1 2.6 0 4.4-2.4 4.4-5.6C17.7 7.2 15.6 5 12.3 5z"/></svg>
+          Pinterest
+        </button>
       </div>
       <div class="subtabs" id="ytsub">
-        <button class="chip on" data-y="youtube">▭ YouTube Largo <small>horizontal</small></button>
-        <button class="chip" data-y="shorts">▯ Shorts <small>vertical</small></button>
+        <button class="chip on" data-y="youtube" data-i="yt_long"></button>
+        <button class="chip" data-y="shorts" data-i="yt_short"></button>
       </div>
 
       <div class="rows" id="rows"></div>
+
+      <div class="preview" id="preview" hidden><img referrerpolicy="no-referrer" alt=""><div><b></b><span></span></div></div>
 
       <div class="opts">
         <label class="check">
           <input type="checkbox" id="multi">
           <span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg></span>
-          Descarga múltiple
+          <span data-i="multi"></span>
         </label>
-        <div class="mode" id="mode">
-          <button class="on" data-m="sep">📄 Por separado</button>
-          <button data-m="zip">🗜️ Todo en 1 ZIP</button>
+        <div class="seg" id="fmt">
+          <button class="on" data-f="mp4" data-i="fmt_v"></button>
+          <button data-f="mp3" data-i="fmt_a"></button>
         </div>
       </div>
-      <p class="hint" id="hint">Pega un enlace y aparecerá otra casilla en blanco automáticamente. Puedes mezclar enlaces de distintas plataformas. Si tu navegador pregunta, permite las descargas múltiples.</p>
+      <div class="seg mode" id="mode">
+        <button class="on" data-m="sep" data-i="sep"></button>
+        <button data-m="zip" data-i="zip"></button>
+      </div>
+      <p class="hint" id="hint" data-i="hint"></p>
 
       <button class="go" id="go">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg>
-        <span id="golabel">Descargar MP4</span>
+        <span id="golabel"></span>
       </button>
       <div class="msg" id="msg"></div>
     </div>
 
     <div class="trust">
-      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5 9-10"/></svg>Sin marca de agua*</span>
-      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5 9-10"/></svg>MP4 hasta 1080p</span>
-      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5 9-10"/></svg>Sin registro</span>
-      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5 9-10"/></svg>Móvil y ordenador</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5 9-10"/></svg><span data-i="trust1"></span></span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5 9-10"/></svg><span data-i="trust2"></span></span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5 9-10"/></svg><span data-i="trust3"></span></span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5 9-10"/></svg><span data-i="trust4"></span></span>
     </div>
   </div>
 
   <section id="como">
-    <h2>Cómo descargar un vídeo</h2>
-    <p class="lead">Tres pasos. Sin instalar nada.</p>
+    <h2 data-i="how_h"></h2>
+    <p class="lead" data-i="how_lead"></p>
     <div class="steps">
-      <div class="tile"><div class="num">1</div><h3>Elige la plataforma</h3><p>Instagram, TikTok, YouTube (vídeo largo o Shorts) o X (Twitter).</p></div>
-      <div class="tile"><div class="num">2</div><h3>Pega el enlace</h3><p>Copia el link desde la app con «Compartir → Copiar enlace» y pégalo arriba.</p></div>
-      <div class="tile"><div class="num">3</div><h3>Pulsa descargar</h3><p>El MP4 se guarda directamente en tu carpeta de descargas.</p></div>
+      <div class="tile"><div class="num">1</div><h3 data-i="s1h"></h3><p data-i="s1p"></p></div>
+      <div class="tile"><div class="num">2</div><h3 data-i="s2h"></h3><p data-i="s2p"></p></div>
+      <div class="tile"><div class="num">3</div><h3 data-i="s3h"></h3><p data-i="s3p"></p></div>
     </div>
   </section>
 
   <section id="ventajas">
-    <h2>Todo lo que necesitas</h2>
+    <h2 data-i="feat_h"></h2>
     <div class="feats">
-      <div class="tile"><div class="ic">⚡</div><h3>Rápido</h3><p>Procesamos el vídeo al momento y te lo enviamos en MP4 listo para reproducir.</p></div>
-      <div class="tile"><div class="ic">📚</div><h3>Descarga múltiple</h3><p>Pega tantos enlaces como quieras y descárgalos todos de golpe, sueltos o en un ZIP.</p></div>
-      <div class="tile"><div class="ic">🎬</div><h3>Máxima compatibilidad</h3><p>H.264 + AAC en MP4: funciona en iPhone, Android, Windows, Mac y editores de vídeo.</p></div>
-      <div class="tile"><div class="ic">📱</div><h3>Reels, posts y Shorts</h3><p>Reels e IGTV de Instagram, vídeos de TikTok, vídeos largos y Shorts de YouTube y vídeos de X (Twitter).</p></div>
-      <div class="tile"><div class="ic">🔒</div><h3>Privado</h3><p>No guardamos tus enlaces ni tus vídeos: se borran del servidor nada más enviártelos.</p></div>
-      <div class="tile"><div class="ic">💸</div><h3>Gratis</h3><p>Sin cuentas, sin límites diarios y sin instalar aplicaciones.</p></div>
+      <div class="tile"><div class="ic">⚡</div><h3 data-i="f1h"></h3><p data-i="f1p"></p></div>
+      <div class="tile"><div class="ic">📚</div><h3 data-i="f2h"></h3><p data-i="f2p"></p></div>
+      <div class="tile"><div class="ic">🎵</div><h3 data-i="f3h"></h3><p data-i="f3p"></p></div>
+      <div class="tile"><div class="ic">📱</div><h3 data-i="f4h"></h3><p data-i="f4p"></p></div>
+      <div class="tile"><div class="ic">🔒</div><h3 data-i="f5h"></h3><p data-i="f5p"></p></div>
+      <div class="tile"><div class="ic">💸</div><h3 data-i="f6h"></h3><p data-i="f6p"></p></div>
     </div>
   </section>
 
   <section id="herramientas" hidden>
-    <h2>Recomendados</h2>
-    <p class="lead">Las marcas que uso y recomiendo.</p>
+    <h2 data-i="rec_h"></h2>
+    <p class="lead" data-i="rec_lead"></p>
     <div class="tools" id="tools"></div>
-    <p class="disc">Algunos enlaces son de afiliado: si te registras, recibimos una pequeña comisión sin coste extra para ti. Así mantenemos la web gratis.</p>
+    <p class="disc" data-i="rec_disc"></p>
   </section>
 
   <section id="faq">
-    <h2>Preguntas frecuentes</h2>
-    <details><summary>¿Dónde se guardan los vídeos?</summary><p>En la carpeta de descargas de tu navegador. En iPhone, abre la app Archivos → Descargas; desde ahí puedes guardarlo en Fotos.</p></details>
-    <details><summary>¿Puedo descargar vídeos de cuentas privadas?</summary><p>No. Solo es posible descargar vídeos públicos.</p></details>
-    <details><summary>¿Cómo funciona la descarga múltiple?</summary><p>Activa la casilla «Descarga múltiple». Cada vez que pegues un enlace aparecerá una nueva casilla vacía. Al pulsar descargar puedes recibir todos los MP4 por separado o agrupados en un único archivo ZIP.</p></details>
-    <details><summary>Mi navegador solo descargó un vídeo</summary><p>Algunos navegadores bloquean varias descargas seguidas. Acepta el aviso «Permitir descargas múltiples» o elige la opción «Todo en 1 ZIP».</p></details>
-    <details><summary>¿Qué calidad tienen los vídeos?</summary><p>La mejor calidad disponible en MP4, hasta 1080p en YouTube. *TikTok puede incluir marca de agua en algunos vídeos según el origen.</p></details>
-    <details><summary>¿Es legal?</summary><p>Descarga solo contenido del que tengas derechos o permiso del autor, y para uso personal. Respeta los términos de cada plataforma y los derechos de autor.</p></details>
+    <h2 data-i="faq_h"></h2>
+    <details><summary data-i="q1"></summary><p data-i="a1"></p></details>
+    <details><summary data-i="q2"></summary><p data-i="a2"></p></details>
+    <details><summary data-i="q3"></summary><p data-i="a3"></p></details>
+    <details><summary data-i="q4"></summary><p data-i="a4"></p></details>
+    <details><summary data-i="q5"></summary><p data-i="a5"></p></details>
+    <details><summary data-i="q6"></summary><p data-i="a6"></p></details>
+    <details><summary data-i="q7"></summary><p data-i="a7"></p></details>
+    <details><summary data-i="q8"></summary><p data-i="a8"></p></details>
   </section>
 </main>
 
 <footer>
   <div class="wrap">
-    <a class="coffee" id="coffee" target="_blank" rel="noopener" hidden>☕ Invítame a un café</a>
-    <p>© <span id="y"></span> Descargatebra. No estamos afiliados con Instagram, TikTok, YouTube ni X.</p>
-    <p>Usa esta herramienta de forma responsable y respeta los derechos de autor.</p>
+    <a class="coffee" id="coffee" target="_blank" rel="noopener" hidden data-i="coffee"></a>
+    <p>© <span id="y"></span> Descargatebra. <span data-i="foot1"></span></p>
+    <p data-i="foot2"></p>
   </div>
 </footer>
 
-<script src="config.js"></script>
+<script src="/config.js"></script>
 <script>
+const T = {
+es: {
+  nav_how:'Cómo funciona', nav_feat:'Ventajas', nav_faq:'Preguntas',
+  h1:'Descarga vídeos de <span>TikTok, Instagram, YouTube y más</span>',
+  sub:'Elige la plataforma, pega el enlace y pulsa descargar. En segundos tendrás el vídeo en tu dispositivo. Gratis y sin registro.',
+  yt_long:'▭ YouTube Largo <small>horizontal</small>', yt_short:'▯ Shorts <small>vertical</small>',
+  paste:'Pegar', remove:'Quitar', multi:'Descarga múltiple', fmt_v:'🎬 Vídeo MP4', fmt_a:'🎵 Audio MP3',
+  sep:'📄 Por separado', zip:'🗜️ Todo en 1 ZIP',
+  hint:'Pega un enlace y aparecerá otra casilla en blanco automáticamente. Puedes mezclar enlaces de distintas plataformas. Si tu navegador pregunta, permite las descargas múltiples.',
+  go_mp4:'Descargar MP4', go_mp3:'Descargar MP3', go_all:'Descargar todos', processing:'Procesando…',
+  trust1:'Sin marca de agua*', trust2:'MP4 hasta 1080p y MP3', trust3:'Sin registro', trust4:'Móvil y ordenador',
+  how_h:'Cómo descargar un vídeo', how_lead:'Tres pasos. Sin instalar nada.',
+  s1h:'Elige la plataforma', s1p:'Instagram, TikTok, YouTube (largo o Shorts), X, Facebook, Twitch, Reddit o Pinterest.',
+  s2h:'Pega el enlace', s2p:'Copia el link desde la app con «Compartir → Copiar enlace» y pégalo arriba.',
+  s3h:'Pulsa descargar', s3p:'El MP4 (o MP3) se guarda directamente en tu carpeta de descargas.',
+  feat_h:'Todo lo que necesitas',
+  f1h:'Rápido', f1p:'Procesamos el vídeo al momento y te lo enviamos listo para reproducir.',
+  f2h:'Descarga múltiple', f2p:'Pega tantos enlaces como quieras y descárgalos todos de golpe, sueltos o en un ZIP.',
+  f3h:'Vídeo o audio', f3p:'MP4 (H.264 + AAC) compatible con todo, o solo el audio en MP3.',
+  f4h:'Reels, fotos y Shorts', f4p:'Vídeos, Reels, fotos y carruseles de Instagram, TikTok, YouTube, Shorts, X, Facebook, clips de Twitch, Reddit y Pinterest.',
+  f5h:'Privado', f5p:'No guardamos tus enlaces ni tus vídeos: se borran del servidor nada más enviártelos.',
+  f6h:'Gratis', f6p:'Sin cuentas, sin límites diarios y sin instalar aplicaciones.',
+  rec_h:'Recomendados', rec_lead:'Las marcas que uso y recomiendo.', rec_more:'Ver más →',
+  rec_disc:'Algunos enlaces son de afiliado: si te registras, recibimos una pequeña comisión sin coste extra para ti. Así mantenemos la web gratis.',
+  faq_h:'Preguntas frecuentes',
+  q1:'¿Dónde se guardan los vídeos?', a1:'En la carpeta de descargas de tu navegador. En iPhone, abre la app Archivos → Descargas; desde ahí puedes guardarlo en Fotos.',
+  q2:'¿Puedo descargar vídeos de cuentas privadas?', a2:'No. Solo es posible descargar contenido público.',
+  q3:'¿Cómo funciona la descarga múltiple?', a3:'Activa la casilla «Descarga múltiple». Cada vez que pegues un enlace aparecerá una nueva casilla vacía. Al pulsar descargar puedes recibir todos los archivos por separado o agrupados en un único ZIP.',
+  q4:'Mi navegador solo descargó un vídeo', a4:'Algunos navegadores bloquean varias descargas seguidas. Acepta el aviso «Permitir descargas múltiples» o elige la opción «Todo en 1 ZIP».',
+  q5:'¿Puedo descargar solo el audio?', a5:'Sí. Elige «Audio MP3» antes de pulsar descargar y recibirás el sonido del vídeo en MP3.',
+  q6:'¿Puedo usarla como una app en el móvil?', a6:'Sí. En Android, abre el menú del navegador → «Instalar app»; después podrás compartir cualquier vídeo desde TikTok, Instagram, etc. directamente a Descargatebra. En iPhone, pulsa Compartir → «Añadir a pantalla de inicio».',
+  q7:'¿Qué calidad tienen los vídeos?', a7:'La mejor calidad disponible en MP4, hasta 1080p en YouTube. *TikTok puede incluir marca de agua en algunos vídeos según el origen.',
+  q8:'¿Es legal?', a8:'Descarga solo contenido del que tengas derechos o permiso del autor, y para uso personal. Respeta los términos de cada plataforma y los derechos de autor.',
+  coffee:'☕ Invítame a un café', coffee_msg:'☕ ¿Te ha servido? Invítame a un café',
+  foot1:'No estamos afiliados con ninguna de las plataformas mencionadas.', foot2:'Usa esta herramienta de forma responsable y respeta los derechos de autor.',
+  m_paste:'Mantén pulsado el campo y elige «Pegar».', m_bad_one:p=>`Revisa el enlace marcado en rojo: debe ser de ${p}.`, m_bad_multi:'Revisa los enlaces marcados en rojo: deben ser de una plataforma compatible.',
+  m_empty:'Pega primero un enlace.', m_zip_prep:n=>`Preparando ZIP con ${n} enlaces…`, m_zip_ok:'ZIP descargado. Si algún enlace falló, verás un archivo ERRORES.txt dentro.',
+  m_ok1:'Descarga completada. Revisa tu carpeta de descargas.', m_okn:n=>`${n} descargas completadas.`, m_partial:(o,n)=>`${o} de ${n} descargados. Los marcados en rojo no están disponibles o son privados.`,
+  m_offline:'Sin conexión con el servidor.',
+  st_queue:'En cola', st_dl:'Descargando', st_ok:'✓ Listo', st_zip:'✓ En ZIP', st_err:'✕ Error', st_badplat:'Plataforma incorrecta', st_badurl:'Enlace no válido',
+  e_invalid:'Enlace no válido.', e_mismatch:'El enlace no corresponde a la plataforma seleccionada.', e_private:'El contenido es privado o requiere iniciar sesión.',
+  e_notfound:'Contenido no encontrado o no disponible.', e_failed:'No se pudo descargar este enlace. Comprueba que es público.', e_nofile:'No se generó el archivo.',
+  e_empty:'No hay enlaces.', e_toomany:'Máximo 25 enlaces por ZIP.', e_allfailed:'No se pudo descargar ninguno de los enlaces.', e_noaudio:'Este enlace no tiene audio (es una imagen).', e_generic:'Error al descargar.',
+},
+en: {
+  nav_how:'How it works', nav_feat:'Features', nav_faq:'FAQ',
+  h1:'Download videos from <span>TikTok, Instagram, YouTube & more</span>',
+  sub:'Pick the platform, paste the link and hit download. You\'ll have the video on your device in seconds. Free, no sign-up.',
+  yt_long:'▭ YouTube Long <small>horizontal</small>', yt_short:'▯ Shorts <small>vertical</small>',
+  paste:'Paste', remove:'Remove', multi:'Bulk download', fmt_v:'🎬 Video MP4', fmt_a:'🎵 Audio MP3',
+  sep:'📄 Separate files', zip:'🗜️ All in 1 ZIP',
+  hint:'Paste a link and a new empty box appears automatically. You can mix links from different platforms. If your browser asks, allow multiple downloads.',
+  go_mp4:'Download MP4', go_mp3:'Download MP3', go_all:'Download all', processing:'Processing…',
+  trust1:'No watermark*', trust2:'MP4 up to 1080p & MP3', trust3:'No sign-up', trust4:'Mobile & desktop',
+  how_h:'How to download a video', how_lead:'Three steps. Nothing to install.',
+  s1h:'Pick the platform', s1p:'Instagram, TikTok, YouTube (long or Shorts), X, Facebook, Twitch, Reddit or Pinterest.',
+  s2h:'Paste the link', s2p:'Copy the link in the app with “Share → Copy link” and paste it above.',
+  s3h:'Hit download', s3p:'The MP4 (or MP3) is saved straight to your downloads folder.',
+  feat_h:'Everything you need',
+  f1h:'Fast', f1p:'We process the video instantly and send it to you ready to play.',
+  f2h:'Bulk download', f2p:'Paste as many links as you want and download them all at once, as separate files or one ZIP.',
+  f3h:'Video or audio', f3p:'MP4 (H.264 + AAC) that plays everywhere, or just the audio as MP3.',
+  f4h:'Reels, photos & Shorts', f4p:'Videos, Reels, photos and carousels from Instagram, TikTok, YouTube, Shorts, X, Facebook, Twitch clips, Reddit and Pinterest.',
+  f5h:'Private', f5p:'We don\'t store your links or videos: they\'re deleted from the server as soon as they\'re sent.',
+  f6h:'Free', f6p:'No accounts, no daily limits and no apps to install.',
+  rec_h:'Recommended', rec_lead:'Brands I use and recommend.', rec_more:'Learn more →',
+  rec_disc:'Some links are affiliate links: if you sign up, we get a small commission at no extra cost to you. That\'s how we keep the site free.',
+  faq_h:'FAQ',
+  q1:'Where are the videos saved?', a1:'In your browser\'s downloads folder. On iPhone, open the Files app → Downloads; from there you can save it to Photos.',
+  q2:'Can I download videos from private accounts?', a2:'No. Only public content can be downloaded.',
+  q3:'How does bulk download work?', a3:'Tick “Bulk download”. Every time you paste a link a new empty box appears. When you hit download you can get every file separately or bundled in a single ZIP.',
+  q4:'My browser only downloaded one video', a4:'Some browsers block several downloads in a row. Accept the “Allow multiple downloads” prompt or choose “All in 1 ZIP”.',
+  q5:'Can I download just the audio?', a5:'Yes. Choose “Audio MP3” before hitting download and you\'ll get the video\'s sound as an MP3.',
+  q6:'Can I use it as an app on my phone?', a6:'Yes. On Android, open the browser menu → “Install app”; then you can share any video from TikTok, Instagram, etc. straight to Descargatebra. On iPhone, tap Share → “Add to Home Screen”.',
+  q7:'What quality are the videos?', a7:'The best quality available in MP4, up to 1080p on YouTube. *TikTok may include a watermark on some videos depending on the source.',
+  q8:'Is it legal?', a8:'Only download content you own or have the author\'s permission for, and for personal use. Respect each platform\'s terms and copyright.',
+  coffee:'☕ Buy me a coffee', coffee_msg:'☕ Found it useful? Buy me a coffee',
+  foot1:'We are not affiliated with any of the platforms mentioned.', foot2:'Use this tool responsibly and respect copyright.',
+  m_paste:'Long-press the box and choose “Paste”.', m_bad_one:p=>`Check the link marked in red: it must be from ${p}.`, m_bad_multi:'Check the links marked in red: they must be from a supported platform.',
+  m_empty:'Paste a link first.', m_zip_prep:n=>`Preparing ZIP with ${n} links…`, m_zip_ok:'ZIP downloaded. If any link failed, you\'ll find an ERRORES.txt file inside.',
+  m_ok1:'Download complete. Check your downloads folder.', m_okn:n=>`${n} downloads complete.`, m_partial:(o,n)=>`${o} of ${n} downloaded. The ones marked in red are unavailable or private.`,
+  m_offline:'Can\'t reach the server.',
+  st_queue:'Queued', st_dl:'Downloading', st_ok:'✓ Done', st_zip:'✓ In ZIP', st_err:'✕ Error', st_badplat:'Wrong platform', st_badurl:'Invalid link',
+  e_invalid:'Invalid link.', e_mismatch:'The link doesn\'t match the selected platform.', e_private:'The content is private or requires login.',
+  e_notfound:'Content not found or unavailable.', e_failed:'Couldn\'t download this link. Make sure it\'s public.', e_nofile:'The file wasn\'t generated.',
+  e_empty:'No links.', e_toomany:'Maximum 25 links per ZIP.', e_allfailed:'None of the links could be downloaded.', e_noaudio:'This link has no audio (it\'s an image).', e_generic:'Download error.',
+}};
+
 const $ = s => document.querySelector(s);
-const rowsEl = $('#rows'), multi = $('#multi'), msg = $('#msg'), go = $('#go');
-const LABEL = {instagram:'Instagram', tiktok:'TikTok', youtube:'YouTube', shorts:'Shorts', twitter:'X'};
+const rowsEl = $('#rows'), multi = $('#multi'), msg = $('#msg'), go = $('#go'), preview = $('#preview');
+const LABEL = {instagram:'Instagram', tiktok:'TikTok', youtube:'YouTube', shorts:'Shorts', twitter:'X', facebook:'Facebook', twitch:'Twitch', reddit:'Reddit', pinterest:'Pinterest'};
 const PH = {
   instagram:'https://www.instagram.com/reel/…',
-  tiktok:'https://www.tiktok.com/@usuario/video/…',
+  tiktok:'https://www.tiktok.com/@user/video/…',
   youtube:'https://www.youtube.com/watch?v=…',
   shorts:'https://www.youtube.com/shorts/…',
-  twitter:'https://x.com/usuario/status/…'
+  twitter:'https://x.com/user/status/…',
+  facebook:'https://www.facebook.com/watch?v=…',
+  twitch:'https://clips.twitch.tv/…',
+  reddit:'https://www.reddit.com/r/…/comments/…',
+  pinterest:'https://www.pinterest.com/pin/…'
 };
-let platform = 'instagram', ytKind = 'youtube', mode = 'sep', busy = false;
+let platform = 'instagram', ytKind = 'youtube', mode = 'sep', fmt = 'mp4', busy = false, lang = 'es';
 $('#y').textContent = new Date().getFullYear();
 
+const t = (k, ...a) => { const v = T[lang][k] ?? T.es[k]; return typeof v === 'function' ? v(...a) : v; };
 const current = () => platform === 'youtube' ? ytKind : platform;
+const tabOf = p => p === 'shorts' ? 'youtube' : p;
+
+function setLang(l) {
+  lang = l;
+  document.documentElement.lang = l;
+  document.querySelectorAll('[data-i]').forEach(el => el.innerHTML = t(el.dataset.i));
+  document.querySelectorAll('.lang button').forEach(b => b.classList.toggle('on', b.dataset.l === l));
+  rowsEl.querySelectorAll('.row').forEach(r => {
+    r.querySelector('.paste span').textContent = t('paste');
+    r.querySelector('.paste').title = t('paste');
+    r.querySelector('.del').title = t('remove');
+  });
+  renderAffiliates();
+  updateGoLabel();
+  hide();
+  try { localStorage.setItem('lang', l); } catch {}
+}
+
+function updateGoLabel() {
+  if (!busy) $('#golabel').textContent = multi.checked ? t('go_all') : t(fmt === 'mp3' ? 'go_mp3' : 'go_mp4');
+}
 
 function detect(url) {
   let h;
   try { h = new URL(/^https?:\/\//i.test(url) ? url : 'https://' + url).hostname.toLowerCase(); } catch { return null; }
-  if (h.endsWith('instagram.com')) return 'instagram';
-  if (h.endsWith('tiktok.com')) return 'tiktok';
-  if (h === 'x.com' || h.endsWith('.x.com') || h.endsWith('twitter.com')) return 'twitter';
-  if (h.endsWith('youtube.com') || h === 'youtu.be') return url.includes('/shorts/') ? 'shorts' : 'youtube';
+  const is = d => h === d || h.endsWith('.' + d);
+  if (is('instagram.com')) return 'instagram';
+  if (is('tiktok.com')) return 'tiktok';
+  if (is('x.com') || is('twitter.com')) return 'twitter';
+  if (is('youtube.com') || is('youtu.be')) return url.includes('/shorts/') ? 'shorts' : 'youtube';
+  if (is('facebook.com') || is('fb.watch') || is('fb.com')) return 'facebook';
+  if (is('twitch.tv')) return 'twitch';
+  if (is('reddit.com') || is('redd.it')) return 'reddit';
+  if (/(^|\.)pinterest\.[a-z.]+$/.test(h) || is('pin.it')) return 'pinterest';
   return null;
 }
 
 function setPlatform(p) {
-  const tab = p === 'shorts' ? 'youtube' : p;
+  const tab = tabOf(p);
   platform = tab;
   if (tab === 'youtube') ytKind = p;
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.p === tab));
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x.dataset.p === tab));
   document.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c.dataset.y === ytKind));
   $('#ytsub').classList.toggle('show', tab === 'youtube');
   rowsEl.querySelectorAll('input').forEach(i => i.placeholder = PH[current()]);
@@ -287,13 +461,13 @@ function setPlatform(p) {
 function makeRow() {
   const row = document.createElement('div');
   row.className = 'row';
-  row.innerHTML = `<div class="field"><span class="n"></span><input type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="${PH[current()]}"><span class="badge"></span><span class="status"></span><button class="ibtn paste" type="button" title="Pegar"><svg width="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg><span>Pegar</span></button><button class="ibtn del" type="button" title="Quitar">✕</button></div>`;
+  row.innerHTML = `<div class="field"><span class="n"></span><input type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="${PH[current()]}"><span class="badge"></span><span class="status"></span><button class="ibtn paste" type="button" title="${t('paste')}"><svg width="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg><span>${t('paste')}</span></button><button class="ibtn del" type="button" title="${t('remove')}">✕</button></div>`;
   const input = row.querySelector('input');
   input.addEventListener('input', () => onInput(row));
   input.addEventListener('keydown', e => { if (e.key === 'Enter') start(); });
   row.querySelector('.paste').onclick = async () => {
     try { input.value = (await navigator.clipboard.readText()).trim(); onInput(row); }
-    catch { input.focus(); show('info', 'Mantén pulsado el campo y elige «Pegar».'); }
+    catch { input.focus(); show('info', t('m_paste')); }
   };
   row.querySelector('.del').onclick = () => { row.remove(); ensureBlank(); renumber(); };
   rowsEl.appendChild(row);
@@ -312,6 +486,7 @@ function onInput(row) {
   if (p && !multi.checked && p !== current()) setPlatform(p);
   hide();
   ensureBlank();
+  schedulePreview();
 }
 
 function ensureBlank() {
@@ -342,36 +517,74 @@ function setStatus(row, kind, text = '') {
 function show(kind, text) {
   msg.className = 'msg show ' + kind; msg.textContent = text;
   if (kind === 'ok' && SUPPORT_URL) {
-    const a = Object.assign(document.createElement('a'), {href: SUPPORT_URL, target: '_blank', rel: 'noopener', textContent: '☕ ¿Te ha servido? Invítame a un café'});
+    const a = Object.assign(document.createElement('a'), {href: SUPPORT_URL, target: '_blank', rel: 'noopener', textContent: t('coffee_msg')});
     msg.append(' ', a);
-  }
-}
-
-if (SUPPORT_URL) Object.assign($('#coffee'), {href: SUPPORT_URL, hidden: false});
-const affs = AFFILIATES.filter(a => a.url);
-if (affs.length) {
-  $('#herramientas').hidden = false;
-  for (const a of affs) {
-    const t = Object.assign(document.createElement('a'), {className: 'tile', href: a.url, target: '_blank', rel: 'sponsored noopener'});
-    t.innerHTML = '<div class="ic"></div><h3></h3><p></p><span class="go-link">Ver más →</span>';
-    t.querySelector('.ic').textContent = a.icon;
-    t.querySelector('h3').textContent = a.name;
-    t.querySelector('p').textContent = a.desc;
-    $('#tools').append(t);
   }
 }
 function hide() { msg.className = 'msg'; }
 
-document.querySelectorAll('.tab').forEach(t => t.onclick = () => setPlatform(t.dataset.p === 'youtube' ? ytKind : t.dataset.p));
-document.querySelectorAll('.chip').forEach(c => c.onclick = () => setPlatform(c.dataset.y));
+/* preview (single mode) */
+let previewTimer, previewSeq = 0;
+function fmtDur(s) {
+  if (!s) return '';
+  s = Math.round(s);
+  const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), sec = String(s % 60).padStart(2, '0');
+  return h ? `${h}:${String(m).padStart(2, '0')}:${sec}` : `${m}:${sec}`;
+}
+function schedulePreview() {
+  clearTimeout(previewTimer);
+  const seq = ++previewSeq;
+  preview.hidden = true;
+  const input = rowsEl.querySelector('input'), url = input?.value.trim();
+  if (multi.checked || !url || !detect(url)) return;
+  previewTimer = setTimeout(async () => {
+    try {
+      const res = await fetch(`/api/info?url=${encodeURIComponent(url)}&platform=${current()}`);
+      if (!res.ok || seq !== previewSeq) return;
+      const d = await res.json();
+      if (seq !== previewSeq || !(d.title || d.thumbnail)) return;
+      const img = preview.querySelector('img');
+      img.hidden = !d.thumbnail;
+      if (d.thumbnail) img.src = d.thumbnail;
+      img.onerror = () => { img.hidden = true; };
+      preview.querySelector('b').textContent = d.title || LABEL[current()];
+      preview.querySelector('span').textContent = [d.uploader, fmtDur(d.duration)].filter(Boolean).join(' · ');
+      preview.hidden = false;
+    } catch {}
+  }, 450);
+}
+
+function renderAffiliates() {
+  if (SUPPORT_URL) Object.assign($('#coffee'), {href: SUPPORT_URL, hidden: false});
+  const affs = AFFILIATES.filter(a => a.url);
+  $('#herramientas').hidden = !affs.length;
+  $('#tools').replaceChildren(...affs.map(a => {
+    const el = Object.assign(document.createElement('a'), {className: 'tile', href: a.url, target: '_blank', rel: 'sponsored noopener'});
+    el.innerHTML = '<div class="ic"></div><h3></h3><p></p><span class="go-link"></span>';
+    el.querySelector('.ic').textContent = a.icon;
+    el.querySelector('h3').textContent = a.name;
+    el.querySelector('p').textContent = (lang === 'en' && a.desc_en) || a.desc;
+    el.querySelector('.go-link').textContent = t('rec_more');
+    return el;
+  }));
+}
+
+document.querySelectorAll('.lang button').forEach(b => b.onclick = () => setLang(b.dataset.l));
+document.querySelectorAll('.tab').forEach(x => x.onclick = () => { setPlatform(x.dataset.p === 'youtube' ? ytKind : x.dataset.p); schedulePreview(); });
+document.querySelectorAll('.chip').forEach(c => c.onclick = () => { setPlatform(c.dataset.y); schedulePreview(); });
 document.querySelectorAll('#mode button').forEach(b => b.onclick = () => {
   mode = b.dataset.m;
   document.querySelectorAll('#mode button').forEach(x => x.classList.toggle('on', x === b));
 });
+document.querySelectorAll('#fmt button').forEach(b => b.onclick = () => {
+  fmt = b.dataset.f;
+  document.querySelectorAll('#fmt button').forEach(x => x.classList.toggle('on', x === b));
+  updateGoLabel();
+});
 multi.onchange = () => {
   $('#mode').classList.toggle('show', multi.checked);
   $('#hint').classList.toggle('show', multi.checked);
-  $('#golabel').textContent = multi.checked ? 'Descargar todos' : 'Descargar MP4';
+  updateGoLabel();
   if (!multi.checked) [...rowsEl.children].slice(1).forEach(r => r.remove());
   rowsEl.querySelectorAll('.row').forEach(onInput);
   ensureBlank(); renumber();
@@ -391,12 +604,30 @@ function save(blob, name) {
   setTimeout(() => URL.revokeObjectURL(a.href), 60000);
 }
 
+let jszip;
+function loadJSZip() {
+  return jszip ||= new Promise((ok, ko) => {
+    const s = Object.assign(document.createElement('script'), {src: '/jszip.min.js', onload: () => ok(window.JSZip), onerror: ko});
+    document.head.append(s);
+  });
+}
+
+// Posts with several files (carousels) arrive as a ZIP: unpack them as loose files.
+async function saveResponse(res, fallback) {
+  const blob = await res.blob(), name = filenameFrom(res, fallback);
+  if (res.headers.get('X-Multi') !== '1') return save(blob, name);
+  try {
+    const zip = await (await loadJSZip()).loadAsync(blob);
+    for (const f of Object.values(zip.files)) if (!f.dir) save(await f.async('blob'), f.name);
+  } catch { save(blob, name); }
+}
+
 async function post(path, body) {
   const res = await fetch(path, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
   if (!res.ok) {
-    let d = 'Error al descargar.';
-    try { d = (await res.json()).detail || d; } catch {}
-    throw new Error(typeof d === 'string' ? d : 'Enlace no válido.');
+    let d;
+    try { d = (await res.json()).detail; } catch {}
+    throw new Error(typeof d === 'string' && T.es['e_' + d] ? t('e_' + d) : t('e_generic'));
   }
   return res;
 }
@@ -408,9 +639,9 @@ function collect() {
     if (!url) continue;
     const p = multi.checked ? (row.dataset.platform || current()) : current();
     const d = detect(url);
-    if (!d || (d === 'shorts' ? 'youtube' : d) !== (p === 'shorts' ? 'youtube' : p)) {
+    if (!d || tabOf(d) !== tabOf(p)) {
       row.querySelector('.field').classList.add('bad');
-      setStatus(row, 'err', d ? 'Plataforma incorrecta' : 'Enlace no válido');
+      setStatus(row, 'err', d ? t('st_badplat') : t('st_badurl'));
       return null;
     }
     items.push({row, url, platform: p});
@@ -422,48 +653,68 @@ async function start() {
   if (busy) return;
   hide();
   const items = collect();
-  if (items === null) return show('err', 'Revisa los enlaces marcados en rojo: deben ser de ' + (multi.checked ? 'Instagram, TikTok, YouTube o X.' : LABEL[current()] + '.'));
-  if (!items.length) { rowsEl.querySelector('input').focus(); return show('err', 'Pega primero un enlace.'); }
+  if (items === null) return show('err', multi.checked ? t('m_bad_multi') : t('m_bad_one', LABEL[current()]));
+  if (!items.length) { rowsEl.querySelector('input').focus(); return show('err', t('m_empty')); }
 
   busy = true; go.disabled = true;
-  const label = $('#golabel').textContent;
-  $('#golabel').textContent = 'Procesando…';
+  $('#golabel').textContent = t('processing');
   try {
     if (multi.checked && mode === 'zip' && items.length > 1) {
-      items.forEach(i => setStatus(i.row, 'run', 'En cola'));
-      show('info', `Preparando ZIP con ${items.length} vídeos…`);
-      const res = await post('/api/zip', {items: items.map(({url, platform}) => ({url, platform}))});
+      items.forEach(i => setStatus(i.row, 'run', t('st_queue')));
+      show('info', t('m_zip_prep', items.length));
+      const res = await post('/api/zip', {items: items.map(({url, platform}) => ({url, platform, format: fmt}))});
       save(await res.blob(), filenameFrom(res, 'descargatebra.zip'));
-      items.forEach(i => setStatus(i.row, 'ok', '✓ En ZIP'));
-      show('ok', 'ZIP descargado. Si algún vídeo falló, verás un archivo ERRORES.txt dentro.');
+      items.forEach(i => setStatus(i.row, 'ok', t('st_zip')));
+      show('ok', t('m_zip_ok'));
     } else {
       let ok = 0;
       for (const it of items) {
-        setStatus(it.row, 'run', 'Descargando');
+        setStatus(it.row, 'run', t('st_dl'));
         try {
-          const res = await post('/api/download', {url: it.url, platform: it.platform});
-          save(await res.blob(), filenameFrom(res, 'video.mp4'));
-          setStatus(it.row, 'ok', '✓ Listo'); ok++;
+          const res = await post('/api/download', {url: it.url, platform: it.platform, format: fmt});
+          await saveResponse(res, 'video.' + fmt);
+          setStatus(it.row, 'ok', t('st_ok')); ok++;
         } catch (e) {
-          setStatus(it.row, 'err', '✕ Error');
+          setStatus(it.row, 'err', t('st_err'));
           it.row.querySelector('.field').classList.add('bad');
           if (items.length === 1) throw e;
         }
       }
-      if (ok === items.length) show('ok', ok > 1 ? `${ok} vídeos descargados en MP4.` : 'Vídeo descargado en MP4. Revisa tu carpeta de descargas.');
-      else show('err', `${ok} de ${items.length} vídeos descargados. Los marcados en rojo no están disponibles o son privados.`);
+      if (ok === items.length) show('ok', ok > 1 ? t('m_okn', ok) : t('m_ok1'));
+      else show('err', t('m_partial', ok, items.length));
     }
   } catch (e) {
-    items.forEach(i => { if (i.row.querySelector('.status.run')) setStatus(i.row, 'err', '✕ Error'); });
-    show('err', e.message === 'Failed to fetch' ? 'Sin conexión con el servidor.' : e.message);
+    items.forEach(i => { if (i.row.querySelector('.status.run')) setStatus(i.row, 'err', t('st_err')); });
+    show('err', e.message === 'Failed to fetch' || e.message === 'Load failed' ? t('m_offline') : e.message);
   } finally {
-    busy = false; go.disabled = false; $('#golabel').textContent = label;
+    busy = false; go.disabled = false; updateGoLabel();
   }
 }
 
 go.onclick = start;
 makeRow();
 renumber();
+let saved; try { saved = localStorage.getItem('lang'); } catch {}
+setLang(saved || ((navigator.language || 'es').toLowerCase().startsWith('es') ? 'es' : 'en'));
+
+if (GOATCOUNTER) {
+  const s = Object.assign(document.createElement('script'), {async: true, src: 'https://gc.zgo.at/count.js'});
+  s.dataset.goatcounter = `https://${GOATCOUNTER}.goatcounter.com/count`;
+  document.head.append(s);
+}
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+
+// Shared from another app (Android share sheet / iPhone shortcut): ?url=… or ?text=…
+const qs = new URLSearchParams(location.search);
+const sharedUrl = ['url', 'text', 'title'].map(k => qs.get(k) || '').join(' ').match(/https?:\/\/\S+/)?.[0];
+if (sharedUrl) {
+  history.replaceState(null, '', location.pathname);
+  const input = rowsEl.querySelector('input');
+  input.value = sharedUrl;
+  onInput(input.closest('.row'));
+  if (detect(sharedUrl)) start();
+}
 </script>
 </body>
 </html>

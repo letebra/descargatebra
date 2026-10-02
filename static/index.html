@@ -16,6 +16,7 @@
   --r:14px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
 html{scroll-behavior:smooth}
 body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:radial-gradient(900px 520px at 50% -120px,rgba(109,94,252,.26),transparent 70%) no-repeat,var(--bg);color:var(--text);line-height:1.55;-webkit-font-smoothing:antialiased}
 a{color:inherit}
@@ -120,6 +121,14 @@ details[open] summary:after{content:"−"}
 details p{color:var(--muted);font-size:14.5px;margin-top:10px}
 footer{border-top:1px solid var(--line);margin-top:64px;padding:28px 0 40px;color:var(--muted);font-size:13px;text-align:center}
 footer p+p{margin-top:8px}
+.coffee{display:inline-flex;align-items:center;gap:8px;margin-bottom:18px;padding:10px 18px;border-radius:999px;background:#ffdd00;color:#1a1a1a;font-weight:700;font-size:14px;text-decoration:none;transition:transform .1s}
+.coffee:hover{transform:translateY(-1px)}
+.msg a{color:inherit;font-weight:700;margin-left:6px}
+.tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:28px}
+a.tile{text-decoration:none;display:block;transition:border-color .15s}
+a.tile:hover{border-color:var(--brand)}
+a.tile .go-link{color:#a99fff;font-size:13.5px;font-weight:600;margin-top:10px;display:block}
+.disc{text-align:center;color:var(--muted);font-size:12px;margin-top:12px}
 </style>
 </head>
 <body>
@@ -212,6 +221,13 @@ footer p+p{margin-top:8px}
     </div>
   </section>
 
+  <section id="herramientas" hidden>
+    <h2>Herramientas recomendadas</h2>
+    <p class="lead">Lo que usamos para editar y guardar vídeos.</p>
+    <div class="tools" id="tools"></div>
+    <p class="disc">Algunos enlaces son de afiliado: si te registras, recibimos una pequeña comisión sin coste extra para ti. Así mantenemos la web gratis.</p>
+  </section>
+
   <section id="faq">
     <h2>Preguntas frecuentes</h2>
     <details><summary>¿Dónde se guardan los vídeos?</summary><p>En la carpeta de descargas de tu navegador. En iPhone, abre la app Archivos → Descargas; desde ahí puedes guardarlo en Fotos.</p></details>
@@ -225,11 +241,13 @@ footer p+p{margin-top:8px}
 
 <footer>
   <div class="wrap">
+    <a class="coffee" id="coffee" target="_blank" rel="noopener" hidden>☕ Invítame a un café</a>
     <p>© <span id="y"></span> Descargatebra. No estamos afiliados con Instagram, TikTok, YouTube ni X.</p>
     <p>Usa esta herramienta de forma responsable y respeta los derechos de autor.</p>
   </div>
 </footer>
 
+<script src="config.js"></script>
 <script>
 const $ = s => document.querySelector(s);
 const rowsEl = $('#rows'), multi = $('#multi'), msg = $('#msg'), go = $('#go');
@@ -321,7 +339,27 @@ function setStatus(row, kind, text = '') {
   row.querySelector('.paste').style.display = kind ? 'none' : '';
 }
 
-function show(kind, text) { msg.className = 'msg show ' + kind; msg.textContent = text; }
+function show(kind, text) {
+  msg.className = 'msg show ' + kind; msg.textContent = text;
+  if (kind === 'ok' && SUPPORT_URL) {
+    const a = Object.assign(document.createElement('a'), {href: SUPPORT_URL, target: '_blank', rel: 'noopener', textContent: '☕ ¿Te ha servido? Invítame a un café'});
+    msg.append(' ', a);
+  }
+}
+
+if (SUPPORT_URL) Object.assign($('#coffee'), {href: SUPPORT_URL, hidden: false});
+const affs = AFFILIATES.filter(a => a.url);
+if (affs.length) {
+  $('#herramientas').hidden = false;
+  for (const a of affs) {
+    const t = Object.assign(document.createElement('a'), {className: 'tile', href: a.url, target: '_blank', rel: 'sponsored noopener'});
+    t.innerHTML = '<div class="ic"></div><h3></h3><p></p><span class="go-link">Ver más →</span>';
+    t.querySelector('.ic').textContent = a.icon;
+    t.querySelector('h3').textContent = a.name;
+    t.querySelector('p').textContent = a.desc;
+    $('#tools').append(t);
+  }
+}
 function hide() { msg.className = 'msg'; }
 
 document.querySelectorAll('.tab').forEach(t => t.onclick = () => setPlatform(t.dataset.p === 'youtube' ? ytKind : t.dataset.p));

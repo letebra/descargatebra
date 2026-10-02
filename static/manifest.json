@@ -1,6 +1,6 @@
 {
-  "name": "Descargatebra",
-  "short_name": "Descargatebra",
+  "name": "DescargaTebra",
+  "short_name": "DescargaTebra",
   "description": "Descarga vídeos de TikTok, Instagram, YouTube, X y más en MP4 o MP3.",
   "start_url": "/",
   "scope": "/",

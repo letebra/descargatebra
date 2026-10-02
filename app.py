@@ -52,7 +52,7 @@ SEO_PAGES = {
     "pinterest": ("Descargar vídeos e imágenes de Pinterest", "Descarga vídeos e imágenes de Pinterest en alta calidad gratis y sin registro."),
 }
 
-app = FastAPI(title="Descargatebra")
+app = FastAPI(title="DescargaTebra")
 
 
 class Item(BaseModel):
@@ -249,7 +249,7 @@ def download_zip(batch: Batch):
 def seo_page(slug: str) -> str:
     title, desc = SEO_PAGES[slug]
     html = (STATIC / "index.html").read_text(encoding="utf-8")
-    html = re.sub(r"<title>.*?</title>", f"<title>{title} | Descargatebra</title>", html, count=1)
+    html = re.sub(r"<title>.*?</title>", f"<title>{title} | DescargaTebra</title>", html, count=1)
     html = re.sub(r'(<meta name="description" content=")[^"]*', rf"\g<1>{desc}", html, count=1)
     return html.replace(f'<link rel="canonical" href="{SITE}/">', f'<link rel="canonical" href="{SITE}/{slug}">')
 

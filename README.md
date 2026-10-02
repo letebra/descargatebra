@@ -1,4 +1,4 @@
-# Descargatebra
+# DescargaTebra
 
 Web para descargar vídeos de **Instagram, TikTok, YouTube (largo), YouTube Shorts, X (Twitter), Facebook, Twitch, Reddit y Pinterest**, en MP4 o MP3 (incluye fotos y carruseles) en MP4.
 Descarga individual o múltiple (archivos sueltos o todo en un ZIP).

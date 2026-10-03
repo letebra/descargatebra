@@ -3,9 +3,9 @@ import {$, t, lang, esc, addStrings, api, saveBlob, errText, history, kofiNudge}
 import {h, field, mediaInput, goButton} from './kit.js';
 
 addStrings({
-  es: {sb_go: 'Descargar .srt', sb_lang: 'Idioma', sb_wait: 'Pega un enlace para ver los idiomas', sb_loading: 'Buscando subtítulos…', sb_none: 'Este vídeo no tiene subtítulos',
+  es: {sb_go: 'Descargar .srt', sb_lang: 'Idioma', sb_wait: 'Primero pega un enlace', sb_loading: 'Buscando subtítulos…', sb_none: 'Este vídeo no tiene subtítulos',
     sb_up: 'Subidos por el autor', sb_auto: 'Automáticos y traducidos', sb_ok: 'Subtítulos descargados'},
-  en: {sb_go: 'Download .srt', sb_lang: 'Language', sb_wait: 'Paste a link to see the languages', sb_loading: 'Looking for subtitles…', sb_none: 'This video has no subtitles',
+  en: {sb_go: 'Download .srt', sb_lang: 'Language', sb_wait: 'Paste a link first', sb_loading: 'Looking for subtitles…', sb_none: 'This video has no subtitles',
     sb_up: 'Uploaded by the author', sb_auto: 'Automatic and translated', sb_ok: 'Subtitles downloaded'},
 });
 export const howto = {

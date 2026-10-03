@@ -11,7 +11,7 @@ addStrings({
     d_okn: n => `${n} descargas completadas`, d_partial: (a, b) => `${a} de ${b} descargados. Revisa los marcados en rojo.`, d_zip_ok: 'ZIP descargado',
     st_ok: 'Listo', st_err: 'Error', st_zip: 'En el ZIP', st_badplat: 'Enlace no válido', d_hist: 'Tus descargas', d_hist_p: 'Se guardan solo en este navegador.',
     d_redo: 'Descargar otra vez', d_copy: 'Copiar enlace', d_del: 'Quitar', d_clear: 'Borrar', d_fmt_v: 'Vídeo · MP4', d_fmt_a: 'Audio · MP3',
-    d_hint: 'Consejo: pega con Ctrl + V en cualquier parte de la página y empieza solo.', d_empty: 'Pega al menos un enlace.', d_remove: 'Quitar fila', d_ph_multi: 'Pega un enlace por fila…',
+    d_hint: 'Consejo: pega con Ctrl + V en cualquier parte de la página y empieza solo.', d_empty: 'Pega al menos un enlace.', d_remove: 'Quitar fila', d_ph_multi: 'Un enlace por fila…', d_ph_m: l => `Enlace de ${l}…`,
   },
   en: {
     d_multi: 'Several links at once', d_sep: 'Separate files', d_zip: 'All in a ZIP', d_go_mp4: 'Download MP4', d_go_mp3: 'Download MP3', d_go_all: n => `Download ${n} links`,
@@ -19,7 +19,7 @@ addStrings({
     d_okn: n => `${n} downloads completed`, d_partial: (a, b) => `${a} of ${b} downloaded. Check the ones in red.`, d_zip_ok: 'ZIP downloaded',
     st_ok: 'Done', st_err: 'Error', st_zip: 'In the ZIP', st_badplat: 'Invalid link', d_hist: 'Your downloads', d_hist_p: 'Stored only in this browser.',
     d_redo: 'Download again', d_copy: 'Copy link', d_del: 'Remove', d_clear: 'Clear', d_fmt_v: 'Video · MP4', d_fmt_a: 'Audio · MP3',
-    d_hint: 'Tip: press Ctrl + V anywhere on the page and it starts by itself.', d_empty: 'Paste at least one link.', d_remove: 'Remove row', d_ph_multi: 'One link per row…',
+    d_hint: 'Tip: press Ctrl + V anywhere on the page and it starts by itself.', d_empty: 'Paste at least one link.', d_remove: 'Remove row', d_ph_multi: 'One link per row…', d_ph_m: l => `${l} link…`,
   },
 });
 
@@ -38,6 +38,7 @@ export const faq = {
     ['Can I share straight from my phone?', 'Yes. Install Letebra Tools as an app (Add to Home screen) and it shows up in Android\'s Share menu.']],
 };
 
+const ph = p => matchMedia('(max-width:600px)').matches ? t('d_ph_m', PLATFORMS[p].label) : PLATFORMS[p].ph;
 const ORDER = ['instagram', 'tiktok', 'youtube', 'shorts', 'twitter', 'facebook', 'twitch', 'reddit', 'pinterest'];
 
 export function mount(root, {tool, page, handoff, params}) {
@@ -76,7 +77,7 @@ export function mount(root, {tool, page, handoff, params}) {
   function setPlatform(p) {
     platform = p;
     $$('.ptabs button', el).forEach(b => b.classList.toggle('on', b.dataset.p === p));
-    $$('input', rowsEl).forEach(i => { i.placeholder = multi ? t('d_ph_multi') : PLATFORMS[p].ph; });
+    $$('input', rowsEl).forEach(i => { i.placeholder = multi ? t('d_ph_multi') : ph(p); });
   }
   $$('.ptabs button', el).forEach(b => b.onclick = () => { setPlatform(b.dataset.p); rowsEl.querySelector('input')?.focus(); });
   const getFmt = bindSeg(el, 'fmt', v => { fmt = v; $('#qbox', el).style.visibility = v === 'mp4' ? '' : 'hidden'; label(); });
@@ -92,7 +93,7 @@ export function mount(root, {tool, page, handoff, params}) {
   /* rows */
   function makeRow(value = '') {
     const row = h(`<div class="lrow"><span class="n"></span><label class="urlbox"><span class="pf">${icon('link')}</span>
-      <input type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="${esc(PLATFORMS[platform].ph)}"><span class="status"></span>
+      <input type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="${esc(multi ? t('d_ph_multi') : ph(platform))}"><span class="status"></span>
       <button type="button" class="btn ghost sm" data-paste>${icon('paste')}<span>${t('k_paste')}</span></button><i class="rowbar"></i></label>
       <button type="button" class="btn ghost icon sm" data-del title="${t('d_remove')}" aria-label="${t('d_remove')}">${icon('x')}</button></div>`);
     const input = $('input', row);

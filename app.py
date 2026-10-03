@@ -1089,7 +1089,7 @@ def lobby(request: Request):
 def tool_route(slug: str):
     def handler():
         t = TOOLS[slug]
-        return render("tool", t["title"]["es"], t["meta"]["es"], f"/{slug}", h1=t["name"]["es"], lead=t["desc"]["es"],
+        return render("tool", t["title"]["es"], t["meta"]["es"], f"/{slug}", h1=t["h1"]["es"], lead=t["desc"]["es"],
                       extra={"tool": t["id"]}, jsonld=tool_ld(t, f"/{slug}"))
     return handler
 

@@ -7,12 +7,12 @@ addStrings({
   es: {rc_mode: 'Qué grabar', rc_screen: 'Pantalla', rc_cam: 'Cámara', rc_both: 'Pantalla + cámara', rc_mic: 'Micrófono', rc_sys: 'Sonido del equipo', rc_count: 'Cuenta atrás',
     rc_start: 'Empezar a grabar', rc_stop: 'Parar', rc_pause: 'Pausa', rc_resume: 'Seguir', rc_mp4: 'Convertir a MP4', rc_idle: 'Elige qué grabar y pulsa Empezar.',
     rc_noscreen: 'Tu navegador no permite grabar la pantalla (en el móvil no suele estar disponible). Prueba en un ordenador con Chrome, Edge o Firefox.',
-    rc_denied: 'No se dio permiso para grabar. Vuelve a intentarlo y acepta el aviso del navegador.', rc_drag: 'Arrastra la cámara para colocarla.',
+    rc_denied: 'No se dio permiso para grabar. Vuelve a intentarlo y acepta el aviso del navegador.', rc_drag: 'Arrastra la cámara para colocarla.', rc_nocam: 'No se ha encontrado ninguna cámara o micrófono.', rc_fail: 'No se pudo empezar a grabar:',
     rc_tip: 'Para el sonido del equipo, al compartir marca "Compartir audio" (en Chrome, mejor compartiendo una pestaña o la pantalla completa).'},
   en: {rc_mode: 'What to record', rc_screen: 'Screen', rc_cam: 'Camera', rc_both: 'Screen + camera', rc_mic: 'Microphone', rc_sys: 'System sound', rc_count: 'Countdown',
     rc_start: 'Start recording', rc_stop: 'Stop', rc_pause: 'Pause', rc_resume: 'Resume', rc_mp4: 'Convert to MP4', rc_idle: 'Pick what to record and press Start.',
     rc_noscreen: 'Your browser can\'t record the screen (usually not available on phones). Try a computer with Chrome, Edge or Firefox.',
-    rc_denied: 'Recording permission wasn\'t granted. Try again and accept the browser prompt.', rc_drag: 'Drag the camera to place it.',
+    rc_denied: 'Recording permission wasn\'t granted. Try again and accept the browser prompt.', rc_drag: 'Drag the camera to place it.', rc_nocam: 'No camera or microphone was found.', rc_fail: 'Recording couldn\'t start:',
     rc_tip: 'For system sound, tick "Share audio" when sharing (in Chrome, share a tab or the whole screen).'},
 });
 export const howto = {
@@ -44,7 +44,7 @@ export function mount(root, {tool}) {
   if (!canScreen) $$('[data-seg=mode] button', el).forEach(b => { if (b.dataset.v !== 'cam') b.disabled = true; });
   const opt = k => $(`[data-o=${k}]`, el).checked;
 
-  let streams = [], rec, chunks = [], ac, timer, ticker, t0 = 0, paused = 0, pauseAt = 0, bubble = {x: .82, y: .78, r: .16};
+  let cancel = false, streams = [], rec, chunks = [], ac, timer, ticker, t0 = 0, paused = 0, pauseAt = 0, bubble = {x: .82, y: .78, r: .16};
   const vScreen = document.createElement('video'), vCam = document.createElement('video');
   [vScreen, vCam].forEach(v => { v.muted = true; v.playsInline = true; });
 
@@ -91,22 +91,30 @@ export function mount(root, {tool}) {
     c.innerHTML = state === 'idle' ? `<button type="button" class="btn primary lg block sheen" data-start>${icon('record')}${t('rc_start')}</button>`
       : `<button type="button" class="btn ghost" data-pause>${icon(state === 'paused' ? 'play' : 'pause')}${t(state === 'paused' ? 'rc_resume' : 'rc_pause')}</button><button type="button" class="btn danger" data-stop style="flex:1">${icon('x')}${t('rc_stop')}</button>`;
     $('[data-start]', c)?.addEventListener('click', start);
-    $('[data-stop]', c)?.addEventListener('click', () => rec?.stop());
+    $('[data-stop]', c)?.addEventListener('click', () => { if (rec?.state !== 'inactive') rec.stop(); else cancel = true; });
     $('[data-pause]', c)?.addEventListener('click', () => { if (rec.state === 'recording') { rec.pause(); pauseAt = performance.now(); controls('paused'); } else { rec.resume(); paused += performance.now() - pauseAt; controls('rec'); } });
   }
 
   async function start() {
-    out.innerHTML = ''; jr.clear();
+    out.innerHTML = ''; jr.clear(); cancel = false;
+    // created inside the click: after the permission prompts the browser would start it muted
+    ac = new AudioContext();
     let screen = null, cam = null, mic = null;
     try {
-      if (mode !== 'cam') screen = await navigator.mediaDevices.getDisplayMedia({video: {frameRate: 30}, audio: opt('sys')});
+      if (mode !== 'cam') {
+        try { screen = await navigator.mediaDevices.getDisplayMedia({video: {frameRate: 30}, audio: opt('sys')}); }
+        catch (e) { if (e.name !== 'TypeError' || !opt('sys')) throw e; screen = await navigator.mediaDevices.getDisplayMedia({video: {frameRate: 30}}); }
+      }
       if (mode !== 'screen') cam = await navigator.mediaDevices.getUserMedia({video: {width: {ideal: 1280}, height: {ideal: 720}}, audio: false});
       if (opt('mic')) mic = await navigator.mediaDevices.getUserMedia({audio: {echoCancellation: true, noiseSuppression: true}}).catch(() => null);
     } catch (e) {
       [screen, cam, mic].forEach(s => s?.getTracks().forEach(tr => tr.stop()));
-      out.innerHTML = `<div class="err-box">${esc(mode !== 'cam' && !canScreen ? t('rc_noscreen') : t('rc_denied'))}</div>`;
+      ac.close(); ac = null;
+      const why = mode !== 'cam' && !canScreen ? t('rc_noscreen') : e?.name === 'NotAllowedError' ? t('rc_denied') : e?.name === 'NotFoundError' ? t('rc_nocam') : `${t('rc_fail')} ${e?.message || e}`;
+      out.innerHTML = `<div class="err-box">${esc(why)}</div>`;
       return;
     }
+    ac.resume().catch(() => {});
     streams = [screen, cam, mic].filter(Boolean);
     if (screen) { vScreen.srcObject = screen; await vScreen.play(); }
     if (cam) { vCam.srcObject = cam; await vCam.play(); }
@@ -116,7 +124,6 @@ export function mount(root, {tool}) {
     $('[data-drag]', el).hidden = mode !== 'both';
     ticker = clock();
     // mix every audio source into one track
-    ac = new AudioContext();
     const dest = ac.createMediaStreamDestination();
     let audio = false;
     for (const s of streams) if (s.getAudioTracks().length) { ac.createMediaStreamSource(s).connect(dest); audio = true; }
@@ -129,10 +136,13 @@ export function mount(root, {tool}) {
     screen?.getVideoTracks()[0].addEventListener('ended', () => rec.state !== 'inactive' && rec.stop());
     controls('rec');
     if (opt('count')) for (const n of [3, 2, 1]) { stage.insertAdjacentHTML('beforeend', `<div class="prompter-count" style="position:absolute;font-size:120px" data-cd>${n}</div>`); await new Promise(r => setTimeout(r, 900)); $('[data-cd]', stage)?.remove(); }
+    if (cancel) { cleanup(); controls('idle'); $('[data-idle]', el).hidden = false; return; }
     stage.insertAdjacentHTML('beforeend', `<span class="rec-time" data-time><i class="rec-dot"></i> 0:00</span>`);
     t0 = performance.now(); paused = 0;
     rec.start(1000);
   }
+  controls('idle');
+
   function finish(mimeType) {
     cleanup();
     controls('idle');

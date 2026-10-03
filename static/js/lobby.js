@@ -10,7 +10,7 @@ addStrings({
     eyebrow: 'Nuevo', eyebrow_t: n => `${n} herramientas en un solo sitio`,
     h1a: 'Todas las herramientas', h1b: 'que un creador necesita.', h1c: 'En un solo sitio.',
     lead: 'Descarga, edita, convierte y crea. Gratis, sin registro y sin anuncios.',
-    hs_ph: 'Busca una herramienta o pega un enlace…', st_tools: 'herramientas', st_plat: 'plataformas', st_ads: 'anuncios',
+    hs_ph: 'Busca una herramienta o pega un enlace…', hs_ph_m: 'Busca o pega un enlace…', st_tools: 'herramientas', st_plat: 'plataformas', st_ads: 'anuncios',
     q_favs: 'Favoritas', q_recent: 'Recientes', q_hist: 'Historial', q_none_favs: 'Pulsa ☆ en cualquier herramienta para tenerla siempre aquí.',
     q_none_recent: 'Las herramientas que uses aparecerán aquí.', q_none_hist: 'Aquí verás lo que vayas descargando y creando.', q_clear: 'Borrar historial',
     all: 'Todas', count: n => `${n} herramientas`, open: 'Abrir', browser: 'En tu navegador', server: 'En el servidor',
@@ -27,7 +27,7 @@ addStrings({
     eyebrow: 'New', eyebrow_t: n => `${n} tools in one place`,
     h1a: 'Every tool', h1b: 'a creator needs.', h1c: 'In one place.',
     lead: 'Download, edit, convert and create. Free, no sign-up and no ads.',
-    hs_ph: 'Search a tool or paste a link…', st_tools: 'tools', st_plat: 'platforms', st_ads: 'ads',
+    hs_ph: 'Search a tool or paste a link…', hs_ph_m: 'Search or paste a link…', st_tools: 'tools', st_plat: 'platforms', st_ads: 'ads',
     q_favs: 'Favorites', q_recent: 'Recent', q_hist: 'History', q_none_favs: 'Tap ☆ on any tool to keep it here.',
     q_none_recent: 'Tools you use will show up here.', q_none_hist: 'What you download and create will show up here.', q_clear: 'Clear history',
     all: 'All', count: n => `${n} tools`, open: 'Open', browser: 'In your browser', server: 'On the server',
@@ -54,7 +54,7 @@ export function render(app) {
       <span class="eyebrow glass" style="animation:fade .5s var(--ease) both"><b>${t('eyebrow')}</b>${t('eyebrow_t', n)}</span>
       <h1><span class="line"><span style="--d:0s">${t('h1a')}</span></span><span class="line"><span class="grad-text" style="--d:.06s">${t('h1b')}</span></span><span class="line"><span style="--d:.12s">${t('h1c')}</span></span></h1>
       <p class="lead">${t('lead')}</p>
-      <label class="hero-search glass" data-refract>${icon('search')}<input id="hero-q" type="text" placeholder="${esc(t('hs_ph'))}" autocomplete="off" spellcheck="false" aria-label="${esc(t('hs_ph'))}"><span class="kbd">/</span></label>
+      <label class="hero-search glass" data-refract>${icon('search')}<input id="hero-q" type="text" placeholder="${esc(t(matchMedia('(max-width:600px)').matches ? 'hs_ph_m' : 'hs_ph'))}" autocomplete="off" spellcheck="false" aria-label="${esc(t('hs_ph'))}"><span class="kbd">/</span></label>
       <div class="hero-chips">
         <a class="chip" href="/descargar/tiktok">${platformIcon('tiktok').replace('<svg', '<svg width="15" height="15"')} TikTok</a>
         <a class="chip" href="/descargar/instagram">${platformIcon('instagram').replace('<svg', '<svg width="15" height="15"')} Reels</a>

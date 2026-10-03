@@ -81,7 +81,7 @@ function legal(slug) {
         '<b>Herramientas en tu navegador</b> (imagen, texto, QR, grabador, teleprompter…): tus archivos y textos no salen de tu equipo.',
         '<b>Registros técnicos</b>: como cualquier servidor, el proveedor de alojamiento puede registrar temporalmente la IP y las peticiones por seguridad y para evitar abusos.',
         '<b>Preferencias</b> (idioma, favoritas, recientes, historial): se guardan en el almacenamiento local de tu navegador y puedes borrarlas cuando quieras.')],
-      ['Servicios de terceros', UL('Alojamiento del servidor: Render (Render Services, Inc.).', 'Tipografía: Google Fonts, que recibe tu IP al cargar la fuente.', 'Quitar fondo: el modelo de IA se descarga de los servidores de IMG.LY; la imagen se procesa en tu equipo.', 'Ko-fi, redes sociales y enlaces de afiliado: solo si haces clic, con sus propias políticas.', 'Miniaturas de vídeos: se cargan desde la plataforma de origen.')],
+      ['Servicios de terceros', UL('Alojamiento del servidor: Render (Render Services, Inc.).', 'Quitar fondo: el modelo de IA se descarga de los servidores de IMG.LY; la imagen se procesa en tu equipo.', 'Ko-fi, redes sociales y enlaces de afiliado: solo si haces clic, con sus propias políticas.', 'Miniaturas de vídeos: se cargan desde la plataforma de origen.')],
       ['Tus derechos', P(`Puedes pedir acceso, rectificación o supresión de cualquier dato escribiendo a ${mail()}. También puedes reclamar ante la Agencia Española de Protección de Datos (aepd.es).`)],
     ] : [
       ['Summary', P('Letebra Tools has no user accounts, doesn\'t ask for your email and uses no tracking cookies. Almost everything you use stays in your browser.')],
@@ -91,7 +91,7 @@ function legal(slug) {
         '<b>In-browser tools</b> (image, text, QR, recorder, teleprompter…): your files and texts never leave your device.',
         '<b>Technical logs</b>: like any server, the hosting provider may temporarily log IPs and requests for security and abuse prevention.',
         '<b>Preferences</b> (language, favorites, recents, history): stored in your browser\'s local storage; you can clear them any time.')],
-      ['Third-party services', UL('Server hosting: Render (Render Services, Inc.).', 'Fonts: Google Fonts, which receives your IP when loading the font.', 'Background removal: the AI model downloads from IMG.LY servers; the image is processed on your device.', 'Ko-fi, social networks and affiliate links: only if you click, under their own policies.', 'Video thumbnails: loaded from the source platform.')],
+      ['Third-party services', UL('Server hosting: Render (Render Services, Inc.).', 'Background removal: the AI model downloads from IMG.LY servers; the image is processed on your device.', 'Ko-fi, social networks and affiliate links: only if you click, under their own policies.', 'Video thumbnails: loaded from the source platform.')],
       ['Your rights', P(`You can request access, correction or deletion of any data by emailing ${mail()}. You may also complain to the Spanish Data Protection Agency (aepd.es).`)],
     ],
     cookies: es ? [
@@ -145,9 +145,10 @@ export function render(app, page) {
     <div class="panel glass reveal" style="margin-top:24px;text-align:center"><p style="color:var(--muted)">${en ? 'Didn\'t find your answer?' : '¿No está tu pregunta?'}</p><a class="btn primary" style="margin-top:12px" href="/contacto">${icon('mail')}${en ? 'Contact me' : 'Escríbeme'}</a></div>`;
   else if (slug === 'contacto') {
     const socials = cfg('SOCIALS', []);
-    body = `<div class="panel glass strong reveal"><div class="contact-mail">${icon('mail')}<span>${esc(MAIL())}</span></div>
-      <div class="row" style="margin-top:18px"><a class="btn primary" href="mailto:${esc(MAIL())}">${icon('mail')}${t('pg_write')}</a><button type="button" class="btn ghost" data-copy>${icon('copy')}${t('pg_copy')}</button></div>
-      <p style="margin-top:18px">${en ? 'Reporting a bug? Include the tool, the link (if any) and what happened. I reply as soon as I can.' : '¿Un error? Dime la herramienta, el enlace (si lo hay) y qué pasó. Respondo lo antes posible.'}</p></div>
+    body = `<div class="panel glass strong reveal contact-card"><span class="ti" style="--c:#6d5efc">${icon('mail')}</span>
+      <div class="contact-body"><small>${en ? 'Write to me at' : 'Escríbeme a'}</small><a class="contact-mail" href="mailto:${esc(MAIL())}">${esc(MAIL())}</a>
+      <p>${en ? 'Ideas, bugs or collabs. For a bug, include the tool, the link (if any) and what happened.' : 'Ideas, errores o colaboraciones. Si es un error, dime la herramienta, el enlace (si lo hay) y qué pasó.'}</p>
+      <div class="row"><a class="btn primary" href="mailto:${esc(MAIL())}">${icon('mail')}${t('pg_write')}</a><button type="button" class="btn ghost" data-copy>${icon('copy')}${t('pg_copy')}</button></div></div></div>
       ${socials.length ? `<h2>${en ? 'Socials' : 'Redes'}</h2><div class="row">${socials.map(s => `<a class="btn ghost" href="${esc(s.url)}" target="_blank" rel="noopener">${socialIcon(s.id).replace('<svg', '<svg width="18" height="18"')}${esc(s.name)}</a>`).join('')}</div>` : ''}`;
   } else if (slug === 'apoyar') {
     const affs = cfg('AFFILIATES', []).filter(a => a.url);

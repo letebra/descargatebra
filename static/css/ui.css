@@ -1,4 +1,8 @@
 /* ═══════════════════ Letebra Tools · design system ═══════════════════ */
+@font-face{font-family:Inter;font-style:normal;font-display:swap;font-weight:100 900;src:url(/vendor/fonts/inter-latin-wght-normal.woff2) format("woff2");
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-display:swap;font-weight:100 900;src:url(/vendor/fonts/inter-latin-ext-wght-normal.woff2) format("woff2");
+  unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
 :root{
   --bg:#0b0b14;--bg2:#12121f;--card:#171728;--line:#26263d;--text:#ececf5;--muted:#c9c9dc;--dim:#a2a2bc;
   --brand:#6d5efc;--brand2:#b15cff;--pink:#ff5ca8;--ok:#22c55e;--err:#ef4444;--warn:#f59e0b;
@@ -95,7 +99,7 @@ input[type=color].inp{padding:6px;height:48px;cursor:pointer}
 .seg button{border:0;background:transparent;color:var(--muted);font-weight:650;font-size:13.5px;padding:9px 14px;border-radius:10px;transition:all .25s var(--ease)}
 .seg button:hover{color:var(--text)}
 .seg button.on{color:var(--text);background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 1px var(--glass-bd),inset 0 1px 0 rgba(255,255,255,.18),0 6px 16px -8px rgba(0,0,0,.6)}
-.seg.full{display:flex}.seg.full button{flex:1}
+.seg.full{display:flex}.seg.full button{flex:1 1 auto}
 .switch{display:inline-flex;align-items:center;gap:11px;cursor:pointer;user-select:none;font-weight:600;font-size:14.5px}
 .switch input{position:absolute;opacity:0;pointer-events:none}
 .switch .track{width:44px;height:26px;border-radius:99px;background:rgba(255,255,255,.12);box-shadow:inset 0 0 0 1px var(--glass-bd);position:relative;transition:background .25s;flex:none}
@@ -436,7 +440,6 @@ input[type=color].inp{padding:6px;height:48px;cursor:pointer}
 @media(max-width:960px){.tool-layout{grid-template-columns:minmax(0,1fr)}}
 .tool-layout>*,.stack>*,.grid2>*,.grid3>*{min-width:0}
 .btn.block{white-space:normal;height:auto;min-height:var(--h);padding-top:8px;padding-bottom:8px;text-align:center;line-height:1.25}
-.seg.full button{min-width:0}
 @media(max-width:600px){.panel{padding:18px;border-radius:24px}.tool-hero{gap:14px}.tool-hero .ti{width:56px;height:56px;border-radius:18px}.tool-hero .star{width:40px;height:40px}}
 .opt{display:flex;flex-direction:column;gap:8px}
 .opt-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
@@ -649,7 +652,14 @@ input[type=color].inp{padding:6px;height:48px;cursor:pointer}
 .doc li+li{margin-top:6px}
 .doc a{color:#cbbcff}
 .doc .panel{margin-top:16px}
-.contact-mail{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:clamp(20px,3vw,28px);font-weight:800;letter-spacing:-.02em}
+.contact-card{display:flex;gap:22px;align-items:flex-start}
+.contact-card>.ti{width:60px;height:60px;border-radius:19px}
+.contact-body{min-width:0;flex:1;display:flex;flex-direction:column;gap:10px}
+.contact-body small{color:var(--muted);font-size:13px;font-weight:600}
+.contact-mail{font-size:clamp(20px,3vw,28px);font-weight:800;letter-spacing:-.02em;color:#fff!important;text-decoration:none;overflow-wrap:anywhere;margin-top:-6px}
+.contact-mail:hover{color:#d9cfff!important}
+.contact-body p{margin:0}
+@media(max-width:600px){.contact-card{flex-direction:column;gap:16px}}
 .changelog .ver{display:flex;gap:12px;align-items:baseline;margin-top:22px}
 .changelog .ver b{font-size:18px}
 .notfound{text-align:center;padding:40px 0 10px}
@@ -699,3 +709,15 @@ input[type=color].inp{padding:6px;height:48px;cursor:pointer}
 .prompter-stage{position:absolute;inset:0}
 .rec-stage [data-idle]{position:absolute;inset:0}
 @media(max-width:600px){.tool-hero{flex-wrap:wrap;align-items:center}.tool-hero>div{order:3;flex-basis:100%}}
+
+/* phones: compact paste button, two-line merge rows, small preset cards */
+.presets.sm{grid-template-columns:repeat(auto-fill,minmax(92px,1fr))}
+@media(max-width:600px){
+  .urlbox [data-paste] span{display:none}
+  .urlbox [data-paste]{width:var(--h);padding:0}
+  .mrow{flex-wrap:wrap;justify-content:flex-end;row-gap:6px}
+  .mrow>.urlbox,.mrow>.filecard{flex:1 1 100%;order:-1}
+  .mrow .handle{display:none}
+  .mrow .n{margin-right:auto;text-align:left}
+}
+.sz-stage .sz-empty{padding:30px 20% 30px 9%}

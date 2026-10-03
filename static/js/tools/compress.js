@@ -1,6 +1,6 @@
 // Compress: fit a video under a target size (Discord, WhatsApp, email…).
 import {$, t, addStrings, fmtBytes} from '../core.js';
-import {h, field, seg, bindSeg, serverTool} from './kit.js';
+import {h, field, bindSeg, serverTool} from './kit.js';
 
 addStrings({
   es: {cp_go: 'Comprimir', cp_size: 'Tamaño máximo', cp_custom: 'Otro', cp_mb: 'MB', cp_need: 'Escribe un tamaño de al menos 1 MB.', cp_orig: s => `Tu archivo pesa ${s}.`,
@@ -18,7 +18,7 @@ export const faq = {
 };
 
 export function mount(root, ctx) {
-  const opts = h(`<div class="stack" style="gap:10px">${field(t('cp_size'), seg('mb', [['10', '10 MB · Discord'], ['16', '16 MB · WhatsApp'], ['25', '25 MB · Email'], ['50', '50 MB'], ['custom', t('cp_custom')]], '10'))}
+  const opts = h(`<div class="stack" style="gap:10px">${field(t('cp_size'), `<div class="presets sm" data-seg="mb">${[['10', 'Discord'], ['16', 'WhatsApp'], ['25', 'Email'], ['50', ''], ['custom', '']].map(([v, a]) => `<button type="button" data-v="${v}" class="${v === '10' ? 'on' : ''}"><b>${v === 'custom' ? t('cp_custom') : v + ' MB'}</b><small>${a || '&nbsp;'}</small></button>`).join('')}</div>`)}
     <div class="row" id="cp-custom" hidden><input class="inp" type="number" min="1" max="4000" step="1" value="100" style="max-width:160px"><span class="muted">${t('cp_mb')}</span></div>
     <small class="muted" id="cp-info" style="font-size:13px"></small></div>`);
   const getMb = bindSeg(opts, 'mb', v => { $('#cp-custom', opts).hidden = v !== 'custom'; info(); });

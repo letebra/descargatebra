@@ -5,15 +5,15 @@ import {tile, observeReveal} from './shell.js';
 import {toolCard, bindStars} from './shell.js';
 
 addStrings({
-  es: {tp_home: 'Inicio', tp_how: 'Cómo funciona', tp_faq: 'Preguntas frecuentes', tp_rel: 'También te puede servir', tp_free: 'Gratis', tp_noreg: 'Sin registro',
-    tp_noads: 'Sin anuncios', tp_local: 'Nada sale de tu equipo', tp_server: 'Archivos borrados en 1 h', tp_fav: 'Añadir a favoritas', tp_err: 'No se pudo cargar la herramienta. Recarga la página.',
+  es: {tp_home: 'Inicio', tp_how: 'Cómo funciona', tp_faq: 'Preguntas frecuentes', tp_rel: 'También te puede servir',
+    tp_fav: 'Añadir a favoritas', tp_err: 'No se pudo cargar la herramienta. Recarga la página.',
     tp_g1: 'Elige tu archivo o enlace', tp_g1p: 'Pega un enlace o arrastra tu archivo. También puedes pegar con Ctrl + V.',
     tp_g2: 'Ajusta las opciones', tp_g2p: 'Todo viene con valores por defecto pensados para redes. Cambia lo que quieras.',
     tp_g3: 'Descarga el resultado', tp_g3p: 'Se guarda en tu equipo al momento, y puedes seguir con otra herramienta.',
     tp_f1: '¿Es gratis de verdad?', tp_f1a: 'Sí. Sin límites, sin registro y sin anuncios. Se mantiene gracias a quien invita a un café.',
     tp_f2: '¿Qué pasa con mis archivos?', tp_f2a: 'Si la herramienta funciona en tu navegador, nunca salen de tu equipo. Si se procesa en el servidor, se borran automáticamente en una hora como máximo.'},
-  en: {tp_home: 'Home', tp_how: 'How it works', tp_faq: 'FAQ', tp_rel: 'You may also like', tp_free: 'Free', tp_noreg: 'No sign-up',
-    tp_noads: 'No ads', tp_local: 'Nothing leaves your device', tp_server: 'Files deleted within 1 h', tp_fav: 'Add to favorites', tp_err: 'The tool couldn\'t load. Reload the page.',
+  en: {tp_home: 'Home', tp_how: 'How it works', tp_faq: 'FAQ', tp_rel: 'You may also like',
+    tp_fav: 'Add to favorites', tp_err: 'The tool couldn\'t load. Reload the page.',
     tp_g1: 'Pick your file or link', tp_g1p: 'Paste a link or drop your file. Ctrl + V works too.',
     tp_g2: 'Adjust the options', tp_g2p: 'Defaults are tuned for social media. Change whatever you want.',
     tp_g3: 'Download the result', tp_g3p: 'It saves to your device instantly, and you can continue with another tool.',
@@ -21,15 +21,19 @@ addStrings({
     tp_f2: 'What happens to my files?', tp_f2a: 'If the tool runs in your browser, they never leave your device. If it runs on the server, they\'re deleted automatically within an hour.'},
 });
 
+const heading = (tool, page) => {
+  const p = SITE.platforms?.[page.platform];
+  if (p) return lang === 'en' ? `Download ${p.name} videos` : `Descargar vídeos de ${p.name}`;
+  return L(tool.h1) || L(tool.name);
+};
+
 export async function render(app, page) {
   const tool = toolById(page.tool);
   const cat = catById(tool.cat);
   markRecent(tool.id);
-  const local = tool.engine === 'browser';
   app.innerHTML = `<div class="wrap">
     <nav class="crumbs" aria-label="breadcrumb"><a href="/">${t('tp_home')}</a>${icon('chevR')}<a href="/#cat-${cat.id}">${esc(L(cat.name))}</a>${icon('chevR')}<span>${esc(L(tool.name))}</span></nav>
-    <header class="tool-hero">${tile(tool)}<div style="min-width:0"><h1>${esc((lang === 'es' && SITE.platforms?.[page.platform]?.title) || L(tool.title) || L(tool.name))}</h1><p>${esc(L(tool.desc))}</p>
-      <div class="tool-badges"><span class="badge">${icon('check')} ${t('tp_free')}</span><span class="badge">${icon('user')} ${t('tp_noreg')}</span><span class="badge">${icon('noads')} ${t('tp_noads')}</span><span class="badge">${icon(local ? 'lock' : 'clock')} ${t(local ? 'tp_local' : 'tp_server')}</span></div></div>
+    <header class="tool-hero">${tile(tool)}<div style="min-width:0"><h1>${esc(heading(tool, page))}</h1><p>${esc(L(tool.desc))}</p></div>
       <button class="btn icon star ${favs.has(tool.id) ? 'on' : ''}" data-fav="${tool.id}" title="${t('tp_fav')}" aria-label="${t('tp_fav')}" aria-pressed="${favs.has(tool.id)}">${icon('star')}</button></header>
     <div id="tool-root"></div>
     <section class="section" id="howto"></section>

@@ -174,6 +174,9 @@ def cookie_copy(workdir: str) -> str | None:
 
 def ydl_error(e: Exception) -> HTTPException:
     msg = str(e).lower()
+    print(f"[yt-dlp] {e}", file=sys.stderr, flush=True)  # visible in Render -> Logs
+    if "not a bot" in msg or "confirm you" in msg:
+        return HTTPException(403, "ytbot")
     if "private" in msg or "login" in msg or "sign in" in msg:
         return HTTPException(403, "private")
     if "unavailable" in msg or "not found" in msg or "404" in msg:

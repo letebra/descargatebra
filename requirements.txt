@@ -1,4 +1,4 @@
-yt-dlp[default,curl-cffi]
+yt-dlp[default,curl-cffi,deno]
 gallery-dl
 fastapi
 uvicorn[standard]

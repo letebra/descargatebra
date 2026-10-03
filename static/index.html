@@ -1279,13 +1279,13 @@ const startTool = Object.keys(TOOL_HASH).find(k => '#' + TOOL_HASH[k] === locati
 setTool(startTool);
 addEventListener('hashchange', () => setTool(Object.keys(TOOL_HASH).find(k => '#' + TOOL_HASH[k] === location.hash) || 'download'));
 
-// Side ads: each one isolated in a sandboxed iframe (no access to the page, can't redirect it).
+// Side ads: each one in its own sandboxed iframe (can't redirect the page).
 for (const [id, code] of [['#adl', typeof AD_LEFT === 'string' ? AD_LEFT : ''], ['#adr', typeof AD_RIGHT === 'string' ? AD_RIGHT : '']]) {
   if (!code.trim()) continue;
   const f = Object.assign(document.createElement('iframe'), {title: 'ad', loading: 'lazy', scrolling: 'no'});
   f.style.height = (parseInt(code.match(/'height'\s*:\s*(\d+)/)?.[1]) || 600) + 'px';  // banner's own height (600 or 300)
   f.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox');
-  f.srcdoc = `<!doctype html><html><head><meta charset="utf-8"><base target="_blank"></head><body style="margin:0;background:transparent;overflow:hidden">${code}</body></html>`;
+  f.src = '/ad.html?s=' + (id === '#adr' ? 'r' : 'l');  // real page on our domain: ad networks check the site URL
   $(id).append(f);
   $(id).classList.add('on');
 }

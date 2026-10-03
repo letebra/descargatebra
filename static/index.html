@@ -35,19 +35,18 @@ header .wrap{display:flex;align-items:center;justify-content:space-between;gap:1
 .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;text-decoration:none;letter-spacing:-.3px}
 .logo i{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--brand),var(--brand2));display:grid;place-items:center}
 .hright{display:flex;align-items:center;gap:22px}
-nav{display:flex;gap:4px;font-size:14px;color:var(--muted)}
-nav a{text-decoration:none;padding:7px 11px;border-radius:9px;white-space:nowrap;font-weight:600}
+nav{display:flex;gap:2px;font-size:14px;color:var(--muted)}
+nav a{text-decoration:none;padding:7px 10px;border-radius:9px;white-space:nowrap;font-weight:600}
 nav a:hover{color:var(--text)}
 nav a.on{color:var(--text);background:var(--card);box-shadow:0 0 0 1px var(--line)}
 .lang{display:flex;gap:2px;background:var(--bg2);border:1px solid var(--line);padding:3px;border-radius:9px}
 .lang button{border:0;background:transparent;color:var(--muted);font:700 12.5px Inter,sans-serif;padding:5px 9px;border-radius:6px;cursor:pointer}
 .lang button.on{background:var(--card);color:var(--text);box-shadow:0 0 0 1px var(--line)}
-@media(max-width:880px){
-  header .wrap{flex-wrap:wrap;height:auto;padding-top:10px;padding-bottom:8px;row-gap:8px}
-  .hright{display:contents}
-  nav{order:3;flex:0 0 100%;min-width:0;overflow-x:auto;scrollbar-width:none;font-size:13px}
-  nav::-webkit-scrollbar{display:none}
-}
+header .wrap{flex-wrap:wrap;height:auto;padding-top:10px;padding-bottom:8px;row-gap:8px}
+.hright{display:contents}
+nav{order:3;flex:0 0 100%;min-width:0;overflow-x:auto;scrollbar-width:none;justify-content:safe center}
+nav::-webkit-scrollbar{display:none}
+@media(max-width:600px){nav{font-size:13px;-webkit-mask-image:linear-gradient(90deg,#000 85%,transparent);mask-image:linear-gradient(90deg,#000 85%,transparent)}}
 
 /* hero */
 .hero{position:relative;padding:56px 0 40px;text-align:center}
@@ -189,20 +188,21 @@ a.tile .go-link{color:#a99fff;font-size:13.5px;font-weight:600;margin-top:10px;d
 .hinfo span{display:block;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hitem button{border:0;background:var(--bg2);color:var(--muted);width:34px;height:34px;border-radius:9px;cursor:pointer;flex:none;font-size:14px}
 .hitem button:hover{color:var(--text)}
-.xtools{margin-top:12px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:0}
-.xtools summary{padding:12px 14px;font-size:14px;font-weight:600}
-.xtools.fixed summary{display:none}
-.xtools.fixed .xgrid{padding-top:14px;grid-template-columns:1fr}
-.xtools summary em{font-style:normal;color:var(--brand2);font-size:12.5px;margin-left:6px}
-.xgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:0 14px 14px}
-@media(max-width:600px){.xgrid{grid-template-columns:1fr}}
+.tpanel{margin-top:12px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:10px}
+.tpanel>label:not(.check){font-size:13px;font-weight:700}
+.tpanel small{color:var(--muted);font-size:12px}
+.tpanel .seg{width:max-content;max-width:100%;flex-wrap:wrap}
+.xrow input[type=range]{flex:3;accent-color:var(--brand);padding:0;border:0;background:none}
+.xrow input[type=number]{flex:0 0 96px;text-align:center}
+.quick{display:flex;flex-wrap:wrap;gap:6px}
+.quick button{border:1px solid var(--line);background:var(--card);color:var(--muted);font:600 12.5px Inter,sans-serif;padding:6px 10px;border-radius:8px;cursor:pointer}
+.quick button:hover{color:var(--text)}
 .xfield label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
 .xfield small{display:block;color:var(--muted);font-size:12px;margin-top:6px}
 .xrow{display:flex;gap:8px;align-items:center}
 .xrow input{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--text);font:600 14px Inter,sans-serif;padding:10px 12px;outline:0}
 .xrow input:focus{border-color:var(--brand)}
 .xrow .qsel{flex:1;min-width:0}
-.metabtn{flex:none;border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:var(--card);color:var(--text);font:700 13px Inter,sans-serif;cursor:pointer}
 .meta{margin-top:10px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:14px}
 .mtop{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
 .mtop img{width:220px;max-width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:10px;background:var(--line)}
@@ -226,7 +226,7 @@ a.tile .go-link{color:#a99fff;font-size:13.5px;font-weight:600;margin-top:10px;d
   <div class="wrap">
     <a class="logo" href="/"><i><svg width="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg></i>DescargaTebra</a>
     <div class="hright">
-      <nav id="toolnav"><a href="#descargar" data-tool="download" data-i="tool_download"></a><a href="#recortar" data-tool="trim" data-i="tool_trim"></a><a href="#comprimir" data-tool="compress" data-i="tool_compress"></a><a href="#unir" data-tool="merge" data-i="tool_merge"></a><a href="#datos" data-tool="info" data-i="tool_info"></a></nav>
+      <nav id="toolnav"><a href="#descargar" data-tool="download" data-i="tool_download"></a><a href="#recortar" data-tool="trim" data-i="tool_trim"></a><a href="#comprimir" data-tool="compress" data-i="tool_compress"></a><a href="#unir" data-tool="merge" data-i="tool_merge"></a><a href="#vertical" data-tool="vertical" data-i="tool_vertical"></a><a href="#audio" data-tool="audio" data-i="tool_audio"></a><a href="#subtitulos" data-tool="subs" data-i="tool_subs"></a><a href="#datos" data-tool="info" data-i="tool_info"></a></nav>
       <div class="lang"><button data-l="es">ES</button><button data-l="en">EN</button></div>
     </div>
   </div>
@@ -279,7 +279,7 @@ a.tile .go-link{color:#a99fff;font-size:13.5px;font-weight:600;margin-top:10px;d
 
       <div class="rows" id="rows"></div>
 
-      <div class="preview" id="preview" hidden><img referrerpolicy="no-referrer" alt=""><div><b></b><span></span></div><button class="metabtn" id="metabtn" type="button" hidden data-i="meta_btn"></button><button class="listbtn" id="listbtn" type="button" hidden data-i="list_load"></button></div>
+      <div class="preview" id="preview" hidden><img referrerpolicy="no-referrer" alt=""><div><b></b><span></span></div><button class="listbtn" id="listbtn" type="button" hidden data-i="list_load"></button></div>
       <div class="meta" id="meta" hidden></div>
 
       <div class="opts">
@@ -305,36 +305,50 @@ a.tile .go-link{color:#a99fff;font-size:13.5px;font-weight:600;margin-top:10px;d
       <div class="seg mode" id="mode">
         <button class="on" data-m="sep" data-i="sep"></button>
         <button data-m="zip" data-i="zip"></button>
-        <button data-m="merge" data-i="merge"></button>
       </div>
       <p class="hint" id="hint" data-i="hint"></p>
 
-      <details class="xtools" id="xtools">
-        <summary><span data-i="tools_h"></span><em id="xcount"></em></summary>
-        <div class="xgrid">
-          <div class="xfield" id="trimbox">
-            <label data-i="trim_h"></label>
-            <div class="xrow"><input id="tstart" inputmode="decimal" autocomplete="off" placeholder="0:00"><span>→</span><input id="tend" inputmode="decimal" autocomplete="off" placeholder="1:30"></div>
-            <small data-i="trim_hint"></small>
-          </div>
-          <div class="xfield" id="compbox">
-            <label data-i="comp_h"></label>
-            <div class="xrow">
-              <select class="qsel" id="csize">
-                <option value="" data-i="comp_none"></option>
-                <option value="10">10 MB · Discord</option>
-                <option value="16">16 MB · WhatsApp</option>
-                <option value="25">25 MB</option>
-                <option value="50">50 MB</option>
-                <option value="100">100 MB</option>
-                <option value="custom" data-i="comp_custom"></option>
-              </select>
-              <input id="ccustom" inputmode="decimal" placeholder="MB" hidden>
-            </div>
-            <small data-i="comp_hint"></small>
-          </div>
+      <div class="tpanel" id="trimbox" hidden>
+        <label data-i="trim_h"></label>
+        <div class="xrow"><input id="tstart" inputmode="decimal" autocomplete="off" placeholder="0:00"><span>→</span><input id="tend" inputmode="decimal" autocomplete="off" placeholder="1:30"></div>
+        <small data-i="trim_hint"></small>
+      </div>
+      <div class="tpanel" id="compbox" hidden>
+        <label data-i="comp_h"></label>
+        <div class="xrow">
+          <select class="qsel" id="csize">
+            <option value="10">10 MB · Discord</option>
+            <option value="16" selected>16 MB · WhatsApp</option>
+            <option value="25">25 MB</option>
+            <option value="50">50 MB</option>
+            <option value="100">100 MB</option>
+            <option value="custom" data-i="comp_custom"></option>
+          </select>
+          <input id="ccustom" inputmode="decimal" placeholder="MB" hidden>
         </div>
-      </details>
+        <small data-i="comp_hint"></small>
+      </div>
+      <div class="tpanel" id="subsbox" hidden>
+        <label data-i="subs_h"></label>
+        <div class="xrow"><select class="qsel" id="slang"></select></div>
+        <small data-i="subs_hint"></small>
+      </div>
+      <div class="tpanel" id="vertbox" hidden>
+        <label data-i="vert_h"></label>
+        <div class="seg" id="vstyle">
+          <button class="on" data-v="blur" data-i="v_blur"></button>
+          <button data-v="black" data-i="v_black"></button>
+          <button data-v="crop" data-i="v_crop"></button>
+        </div>
+        <small data-i="vert_hint"></small>
+      </div>
+      <div class="tpanel" id="audiobox" hidden>
+        <label data-i="aud_speed"></label>
+        <div class="xrow"><input type="range" id="sprange" min="0.5" max="2" step="0.01" value="1"><input type="number" id="spnum" min="0.5" max="2" step="0.01" value="1.00"><span>x</span></div>
+        <div class="quick" id="spquick"><button data-s="0.5">0.5x</button><button data-s="0.75">0.75x</button><button data-s="1">1x</button><button data-s="1.25">1.25x</button><button data-s="1.5">1.5x</button><button data-s="2">2x</button></div>
+        <label class="check"><input type="checkbox" id="amute"><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg></span><span data-i="aud_mute"></span></label>
+        <label class="check"><input type="checkbox" id="anorm"><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg></span><span data-i="aud_norm"></span></label>
+      </div>
 
       <button class="go" id="go">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg>
@@ -465,13 +479,23 @@ es: {
   h1_info:'Todos los datos <span>de cualquier vídeo</span>', sub_info:'Título, descripción, hashtags, etiquetas, visitas, likes y miniatura en HD, listos para copiar.',
   go_trim:'Recortar y descargar', go_compress:'Comprimir y descargar', go_info:'📋 Ver datos',
   e_needtrim:'Pon desde qué segundo y/o hasta cuál quieres recortar.', e_needsize:'Elige el tamaño máximo.', e_needtwo:'Pega al menos 2 enlaces para unirlos.',
-  merge:'🔗 Unir en 1 vídeo', go_merge:'Unir y descargar', st_merged:'✓ Unido', m_merge_ok:'Vídeo unido descargado.',
+  go_merge:'Unir y descargar', st_merged:'✓ Unido', m_merge_ok:'Vídeo unido descargado.',
   stage_trim:'Recortando', stage_compress:'Comprimiendo', stage_merge:'Uniendo',
-  tools_h:'🛠️ Recortar y comprimir', trim_h:'✂️ Recortar (desde → hasta)', trim_hint:'Vacío = vídeo completo. Formato 1:23 o 83 (segundos). Solo en descarga normal.',
-  comp_h:'🗜️ Tamaño máximo', comp_none:'Sin límite', comp_custom:'Otro…', comp_hint:'Si ocupa más, se comprime (y baja de resolución si hace falta) hasta caber.',
-  x_active:n=>`(${n} activa${n > 1 ? 's' : ''})`,
+  trim_h:'✂️ Desde → hasta', trim_hint:'Formato 1:23 o 83 (segundos). Deja uno vacío para cortar solo el principio o el final.',
+  comp_h:'🗜️ Tamaño máximo', comp_custom:'Otro…', comp_hint:'Si ocupa más, se comprime (y baja de resolución si hace falta) hasta caber.',
+  tool_vertical:'📱 Vertical', tool_audio:'🎚️ Audio', tool_subs:'📝 Subtítulos',
+  h1_vertical:'Pasa vídeos a <span>vertical 9:16</span>', sub_vertical:'De YouTube o Twitch a formato TikTok, Reels y Shorts (1080×1920) en un clic.',
+  h1_audio:'Cambia el audio <span>y la velocidad</span>', sub_audio:'Quita el sonido, iguala el volumen o acelera/ralentiza el vídeo con precisión de 0,01.',
+  h1_subs:'Descarga subtítulos <span>en .srt</span>', sub_subs:'Los subtítulos de un vídeo, en su idioma original o traducidos automáticamente por YouTube.',
+  go_vertical:'Pasar a vertical y descargar', go_audio:'Aplicar y descargar', go_subs:'Descargar .srt',
+  vert_h:'Fondo', v_blur:'🌫️ Difuminado', v_black:'⬛ Negro', v_crop:'🔍 Recortar (llenar)', vert_hint:'«Recortar» llena toda la pantalla pero corta los lados del vídeo.',
+  aud_speed:'⏩ Velocidad', aud_mute:'🔇 Quitar el sonido', aud_norm:'🔊 Normalizar volumen (como YouTube/TikTok)',
+  e_needaudio:'Elige al menos un cambio: velocidad distinta de 1x, quitar sonido o normalizar.', e_badspeed:'La velocidad debe estar entre 0.5 y 2.',
+  subs_h:'Idioma', subs_hint:'«Automático» = generados o traducidos por YouTube.', subs_wait:'Pega un enlace…', subs_loading:'Buscando subtítulos…', subs_none:'Este vídeo no tiene subtítulos',
+  subs_up:'Subidos por el autor', subs_auto:'Automáticos / traducidos', e_nosubs:'No hay subtítulos en ese idioma.', m_subs_ok:'Subtítulos descargados.',
+  stage_vertical:'Pasando a vertical', stage_audio:'Procesando audio',
   e_badtrim:'Revisa el recorte: usa 1:23 o segundos, y el final debe ser mayor que el inicio.', e_toosmall:'No cabe en ese tamaño ni a la mínima calidad. Prueba un tamaño mayor o recórtalo.', e_procfail:'Error al procesar el vídeo.',
-  meta_btn:'📋 Datos', meta_loading:'Cargando datos…', copied2:'Copiado.', m_thumb:'⬇ Miniatura HD', m_copyall:'📋 Copiar todo',
+  meta_loading:'Cargando datos…', copied2:'Copiado.', m_thumb:'⬇ Miniatura HD', m_copyall:'📋 Copiar todo',
   md_title:'Título', md_author:'Autor', md_followers:'Seguidores', md_date:'Fecha', md_duration:'Duración', md_views:'Visitas', md_likes:'Me gusta',
   md_comments:'Comentarios', md_reposts:'Compartidos', md_res:'Resolución máx.', md_cat:'Categoría', md_lang:'Idioma', md_music:'Música',
   md_age:'Edad mínima', md_id:'ID', md_url:'Enlace', md_hashtags:'Hashtags', md_tags:'Etiquetas (tags)', md_desc:'Descripción', md_copy:'Copiar',
@@ -531,13 +555,23 @@ en: {
   h1_info:'All the info <span>from any video</span>', sub_info:'Title, description, hashtags, tags, views, likes and HD thumbnail, ready to copy.',
   go_trim:'Trim & download', go_compress:'Compress & download', go_info:'📋 Show info',
   e_needtrim:'Set the second to start and/or end the trim.', e_needsize:'Choose the max size.', e_needtwo:'Paste at least 2 links to join them.',
-  merge:'🔗 Join into 1 video', go_merge:'Join & download', st_merged:'✓ Joined', m_merge_ok:'Joined video downloaded.',
+  go_merge:'Join & download', st_merged:'✓ Joined', m_merge_ok:'Joined video downloaded.',
   stage_trim:'Trimming', stage_compress:'Compressing', stage_merge:'Joining',
-  tools_h:'🛠️ Trim & compress', trim_h:'✂️ Trim (from → to)', trim_hint:'Empty = full video. Format 1:23 or 83 (seconds). Single download only.',
-  comp_h:'🗜️ Max size', comp_none:'No limit', comp_custom:'Other…', comp_hint:'If it\'s bigger, it gets compressed (and downscaled if needed) until it fits.',
-  x_active:n=>`(${n} active)`,
+  trim_h:'✂️ From → to', trim_hint:'Format 1:23 or 83 (seconds). Leave one empty to cut only the start or the end.',
+  comp_h:'🗜️ Max size', comp_custom:'Other…', comp_hint:'If it\'s bigger, it gets compressed (and downscaled if needed) until it fits.',
+  tool_vertical:'📱 Vertical', tool_audio:'🎚️ Audio', tool_subs:'📝 Subtitles',
+  h1_vertical:'Turn videos <span>vertical 9:16</span>', sub_vertical:'From YouTube or Twitch to TikTok, Reels and Shorts format (1080×1920) in one click.',
+  h1_audio:'Change the audio <span>and the speed</span>', sub_audio:'Mute, even out the volume or speed up/slow down the video with 0.01 precision.',
+  h1_subs:'Download subtitles <span>as .srt</span>', sub_subs:'A video\'s subtitles, in the original language or auto-translated by YouTube.',
+  go_vertical:'Make vertical & download', go_audio:'Apply & download', go_subs:'Download .srt',
+  vert_h:'Background', v_blur:'🌫️ Blurred', v_black:'⬛ Black', v_crop:'🔍 Crop (fill)', vert_hint:'“Crop” fills the whole screen but cuts the sides of the video.',
+  aud_speed:'⏩ Speed', aud_mute:'🔇 Remove sound', aud_norm:'🔊 Normalize volume (like YouTube/TikTok)',
+  e_needaudio:'Choose at least one change: speed other than 1x, remove sound or normalize.', e_badspeed:'Speed must be between 0.5 and 2.',
+  subs_h:'Language', subs_hint:'“Automatic” = generated or translated by YouTube.', subs_wait:'Paste a link…', subs_loading:'Looking for subtitles…', subs_none:'This video has no subtitles',
+  subs_up:'Uploaded by the author', subs_auto:'Automatic / translated', e_nosubs:'No subtitles in that language.', m_subs_ok:'Subtitles downloaded.',
+  stage_vertical:'Making vertical', stage_audio:'Processing audio',
   e_badtrim:'Check the trim: use 1:23 or seconds, and the end must be after the start.', e_toosmall:'It doesn\'t fit in that size even at minimum quality. Try a bigger size or trim it.', e_procfail:'Error processing the video.',
-  meta_btn:'📋 Info', meta_loading:'Loading info…', copied2:'Copied.', m_thumb:'⬇ HD thumbnail', m_copyall:'📋 Copy all',
+  meta_loading:'Loading info…', copied2:'Copied.', m_thumb:'⬇ HD thumbnail', m_copyall:'📋 Copy all',
   md_title:'Title', md_author:'Author', md_followers:'Followers', md_date:'Date', md_duration:'Duration', md_views:'Views', md_likes:'Likes',
   md_comments:'Comments', md_reposts:'Shares', md_res:'Max resolution', md_cat:'Category', md_lang:'Language', md_music:'Music',
   md_age:'Age limit', md_id:'ID', md_url:'Link', md_hashtags:'Hashtags', md_tags:'Tags', md_desc:'Description', md_copy:'Copy',
@@ -585,7 +619,7 @@ function setLang(l) {
 }
 
 function updateGoLabel() {
-  const byTool = {trim: 'go_trim', compress: 'go_compress', merge: 'go_merge', info: 'go_info'}[tool];
+  const byTool = {trim: 'go_trim', compress: 'go_compress', merge: 'go_merge', info: 'go_info', vertical: 'go_vertical', audio: 'go_audio', subs: 'go_subs'}[tool];
   if (!busy) $('#golabel').textContent = byTool ? t(byTool) : multi.checked ? t(mode === 'merge' ? 'go_merge' : 'go_all') : t(fmt === 'mp3' ? 'go_mp3' : 'go_mp4');
   syncTools();
 }
@@ -715,7 +749,9 @@ function fmtDur(s) {
   const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), sec = String(s % 60).padStart(2, '0');
   return h ? `${h}:${String(m).padStart(2, '0')}:${sec}` : `${m}:${sec}`;
 }
+let subsTimer;
 function schedulePreview() {
+  if (tool === 'subs') { clearTimeout(subsTimer); subsTimer = setTimeout(loadSubLangs, 450); }
   clearTimeout(previewTimer);
   const seq = ++previewSeq;
   preview.hidden = true;
@@ -737,8 +773,7 @@ function schedulePreview() {
       preview.querySelector('span').textContent = isList
         ? [d.uploader, d.count ? t('list_count', d.count) : ''].filter(Boolean).join(' · ')
         : [d.uploader, fmtDur(d.duration)].filter(Boolean).join(' · ');
-      Object.assign($('#listbtn'), {hidden: !isList, disabled: false, textContent: t('list_load')});
-      $('#metabtn').hidden = isList;
+      Object.assign($('#listbtn'), {hidden: !isList || tool !== 'download', disabled: false, textContent: t('list_load')});
       preview.hidden = false;
     } catch {}
   }, 450);
@@ -892,16 +927,15 @@ async function start() {
   if (items === null) return show('err', multi.checked ? t('m_bad_multi') : t('m_bad_one', LABEL[current()]));
   if (!items.length) { rowsEl.querySelector('input').focus(); return show('err', t('m_empty')); }
   if (tool === 'info') return showMeta(true);
-  if (!multi.checked && infoCache[items[0].url]?.type === 'playlist') return loadList(items[0].url);
-  if (tool === 'trim' && !$('#tstart').value.trim() && !$('#tend').value.trim()) return show('err', t('e_needtrim'));
-  if (tool === 'compress' && !$('#csize').value) return show('err', t('e_needsize'));
+  if (tool === 'subs') return downloadSubs(items[0]);
+  if (tool === 'download' && !multi.checked && infoCache[items[0].url]?.type === 'playlist') return loadList(items[0].url);
   if (tool === 'merge' && items.length < 2) return show('err', t('e_needtwo'));
+  const tools = toolValues();
+  if (tools.err) return show('err', t(tools.err));
 
   busy = true; go.disabled = true;
   $('#golabel').textContent = t('processing');
-  const tools = toolValues();
-  if (!tools) { busy = false; go.disabled = false; updateGoLabel(); return show('err', t('e_badtrim')); }
-  const asItem = it => ({url: it.url, platform: it.platform, format: fmt, quality, ...tools});
+  const asItem = it => ({url: it.url, platform: it.platform, format: tool === 'download' ? fmt : 'mp4', quality, ...tools.vals});
   try {
     if (multi.checked && mode === 'merge' && items.length > 1) {
       items.forEach(i => setStatus(i.row, 'run', t('st_queue')));
@@ -967,35 +1001,84 @@ async function start() {
   }
 }
 
-/* tools: trim + compress */
+/* per-tool options */
 function parseTime(v) {
   v = v.trim().replace(',', '.');
   if (!v) return null;
   if (!/^\d+(\.\d+)?$|^\d+(:\d{1,2}){1,2}(\.\d+)?$/.test(v)) return NaN;
   return v.split(':').reduce((acc, p) => acc * 60 + parseFloat(p), 0);
 }
+// Options of the current tool for the job, or {err: i18n key}.
 function toolValues() {
-  const out = {};
-  if (!multi.checked) {
+  if (tool === 'trim') {
     const st = parseTime($('#tstart').value), en = parseTime($('#tend').value);
-    if (Number.isNaN(st) || Number.isNaN(en) || (en != null && en <= (st || 0))) return null;
-    if (st) out.start = st;
-    if (en != null) out.end = en;
+    if (st == null && en == null) return {err: 'e_needtrim'};
+    if (Number.isNaN(st) || Number.isNaN(en) || (en != null && en <= (st || 0))) return {err: 'e_badtrim'};
+    return {vals: {...(st ? {start: st} : {}), ...(en != null ? {end: en} : {})}};
   }
-  const c = $('#csize').value, mb = c === 'custom' ? parseFloat($('#ccustom').value.replace(',', '.')) : parseFloat(c);
-  if (mb > 0) out.target_mb = mb;
-  return out;
+  if (tool === 'compress') {
+    const c = $('#csize').value, mb = c === 'custom' ? parseFloat($('#ccustom').value.replace(',', '.')) : parseFloat(c);
+    return mb >= 1 ? {vals: {target_mb: mb}} : {err: 'e_needsize'};
+  }
+  if (tool === 'vertical') return {vals: {vertical: $('#vstyle button.on').dataset.v}};
+  if (tool === 'audio') {
+    const sp = Math.round(parseFloat($('#spnum').value.replace(',', '.')) * 100) / 100;
+    if (!(sp >= 0.5 && sp <= 2)) return {err: 'e_badspeed'};
+    const vals = {speed: sp, mute: $('#amute').checked, normalize: $('#anorm').checked};
+    return sp === 1 && !vals.mute && !vals.normalize ? {err: 'e_needaudio'} : {vals};
+  }
+  return {vals: {}};
 }
-function syncTools() {
-  $('#trimbox').hidden = multi.checked || !['download', 'trim'].includes(tool);
-  $('#compbox').hidden = tool === 'trim';
-  $('#ccustom').hidden = $('#csize').value !== 'custom';
-  const n = (!multi.checked && ($('#tstart').value.trim() || $('#tend').value.trim()) ? 1 : 0) + ($('#csize').value ? 1 : 0);
-  $('#xcount').textContent = n ? t('x_active', n) : '';
-  if (n || tool === 'trim' || tool === 'compress') $('#xtools').open = true;
-}
-['#tstart', '#tend', '#ccustom'].forEach(s => $(s).addEventListener('input', syncTools));
+function syncTools() { $('#ccustom').hidden = $('#csize').value !== 'custom'; }
 $('#csize').onchange = syncTools;
+document.querySelectorAll('#vstyle button').forEach(b => b.onclick = () =>
+  document.querySelectorAll('#vstyle button').forEach(x => x.classList.toggle('on', x === b)));
+const setSpeed = v => { $('#sprange').value = v; $('#spnum').value = Number(v).toFixed(2); };
+$('#sprange').oninput = () => setSpeed($('#sprange').value);
+$('#spnum').onchange = () => { const v = Math.min(2, Math.max(0.5, parseFloat($('#spnum').value.replace(',', '.')) || 1)); setSpeed(v); };
+$('#spnum').oninput = () => { const v = parseFloat($('#spnum').value); if (v >= 0.5 && v <= 2) $('#sprange').value = v; };
+document.querySelectorAll('#spquick button').forEach(b => b.onclick = () => setSpeed(b.dataset.s));
+
+/* subtitles */
+let subsSeq = 0;
+async function loadSubLangs() {
+  const sel = $('#slang'), url = rowsEl.querySelector('input').value.trim(), seq = ++subsSeq;
+  const opt = (v, txt, dis) => Object.assign(document.createElement('option'), {value: v, textContent: txt, disabled: !!dis});
+  if (!url || !detect(url)) return sel.replaceChildren(opt('', t('subs_wait'), true));
+  sel.replaceChildren(opt('', t('subs_loading'), true));
+  try {
+    const res = await fetch(`/api/subs?url=${encodeURIComponent(url)}&platform=${current()}`);
+    const d = await res.json();
+    if (seq !== subsSeq) return;
+    if (!res.ok) throw new Error(errText(d.detail));
+    if (!d.langs.length) return sel.replaceChildren(opt('', t('subs_none'), true));
+    const groups = [['subs_up', false], ['subs_auto', true]].map(([k, auto]) => {
+      const g = Object.assign(document.createElement('optgroup'), {label: t(k)});
+      g.append(...d.langs.filter(l => l.auto === auto).map(l => opt(`${auto ? 1 : 0}:${l.code}`, `${l.name} (${l.code})`)));
+      return g;
+    }).filter(g => g.children.length);
+    sel.replaceChildren(...groups);
+    const pick = ['0:' + lang, '0:', '1:' + lang].map(p => [...sel.options].find(o => o.value === p || (p.endsWith(':') && o.value.startsWith(p)))).find(Boolean);
+    if (pick) sel.value = pick.value;
+  } catch (e) { if (seq === subsSeq) sel.replaceChildren(opt('', e.message, true)); }
+}
+async function downloadSubs(it) {
+  const v = $('#slang').value;
+  if (!v) return loadSubLangs();
+  const [auto, code] = [v[0] === '1', v.slice(2)];
+  busy = true; go.disabled = true; $('#golabel').textContent = t('processing');
+  setStatus(it.row, 'run', t('st_dl'));
+  try {
+    const res = await fetch(`/api/subs/file?url=${encodeURIComponent(it.url)}&platform=${it.platform}&lang=${encodeURIComponent(code)}&auto=${auto}`);
+    if (!res.ok) { let d; try { d = (await res.json()).detail; } catch {} throw new Error(errText(d)); }
+    save(await res.blob(), filenameFrom(res, `subs.${code}.srt`));
+    setStatus(it.row, 'ok', t('st_ok'));
+    show('ok', t('m_subs_ok'));
+  } catch (e) {
+    setStatus(it.row, 'err', t('st_err'));
+    show('err', e.message);
+  } finally { busy = false; go.disabled = false; updateGoLabel(); }
+}
 
 /* video info panel */
 const nf = n => n == null ? '' : new Intl.NumberFormat(lang).format(n);
@@ -1056,30 +1139,32 @@ function renderMeta(d) {
   if (d.tags.length) block('md_tags', d.tags.join(', '), chips(d.tags));
   if (d.description) block('md_desc', d.description, Object.assign(document.createElement('div'), {className: 'mdesc', textContent: d.description}));
 }
-$('#metabtn').onclick = () => showMeta();
 
 /* tools menu (header): each tool sets up the same card for its job */
 let tool = 'download';
-const TOOL_HASH = {download: 'descargar', trim: 'recortar', compress: 'comprimir', merge: 'unir', info: 'datos'};
+const TOOL_HASH = {download: 'descargar', trim: 'recortar', compress: 'comprimir', merge: 'unir', vertical: 'vertical', audio: 'audio', subs: 'subtitulos', info: 'datos'};
 function setTool(next) {
   const prev = tool;
   tool = next;
   document.querySelectorAll('#toolnav a').forEach(a => a.classList.toggle('on', a.dataset.tool === next));
+  $('#toolnav a.on')?.scrollIntoView({block: 'nearest', inline: 'center'});
   $('h1').dataset.i = next === 'download' ? 'h1' : 'h1_' + next;
   $('.sub').dataset.i = next === 'download' ? 'sub' : 'sub_' + next;
   $('h1').innerHTML = t($('h1').dataset.i);
   $('.sub').innerHTML = t($('.sub').dataset.i);
-  const isInfo = next === 'info', isMerge = next === 'merge';
+  const isDl = next === 'download', isInfo = next === 'info', isMerge = next === 'merge';
   if (!isInfo) $('#meta').hidden = true;
-  if (isMerge !== multi.checked && (isMerge || prev === 'merge')) { multi.checked = isMerge; multi.onchange(); }
-  if (isMerge) document.querySelector('#mode button[data-m="merge"]').click();
-  else if (prev === 'merge') document.querySelector('#mode button[data-m="sep"]').click();
-  $('#multibox').hidden = isMerge || isInfo;
-  $('#mode').style.display = isMerge ? 'none' : '';
-  document.querySelector('.opts').hidden = isInfo;
-  $('#xtools').hidden = isInfo;
-  $('#xtools').classList.toggle('fixed', next === 'trim' || next === 'compress');
-  if (isInfo && multi.checked) { multi.checked = false; multi.onchange(); }
+  if (isMerge !== multi.checked && (isMerge || prev === 'merge' || !isDl)) { multi.checked = isMerge; multi.onchange(); }
+  if (isMerge) mode = 'merge';
+  else if (mode === 'merge') document.querySelector('#mode button[data-m="sep"]').click();
+  if (!isDl && fmt !== 'mp4') document.querySelector('#fmt button[data-f="mp4"]').click();
+  document.querySelector('.tabs').hidden = !isDl;
+  $('#ytsub').hidden = !isDl;
+  document.querySelector('.opts').hidden = !isDl;
+  $('#mode').hidden = !isDl;
+  for (const [box, tl] of [['#trimbox', 'trim'], ['#compbox', 'compress'], ['#vertbox', 'vertical'], ['#audiobox', 'audio'], ['#subsbox', 'subs']]) $(box).hidden = next !== tl;
+  if (!isDl) $('#listbtn').hidden = true;
+  if (next === 'subs') loadSubLangs();
   updateGoLabel();
   hide();
 }
@@ -1107,7 +1192,7 @@ document.addEventListener('paste', e => {
   const row = multi.checked ? rows.find(r => !r.querySelector('input').value.trim()) || makeRow() : rows[0];
   row.querySelector('input').value = url;
   onInput(row);
-  if (!multi.checked) start();
+  if (!multi.checked && (tool === 'download' || tool === 'info')) start();
 });
 
 /* history (stored in this browser only) */

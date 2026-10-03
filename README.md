@@ -37,7 +37,13 @@ Mantén yt-dlp actualizado (`pip install -U yt-dlp`): las plataformas cambian a 
 - `GET /api/meta?url=...&platform=...` → todos los datos (título, autor, fechas, visitas, likes, tags, hashtags, descripción, miniatura HD)
 - `GET /api/thumb?url=...&name=...` → descarga de la miniatura
 
-Opciones por elemento en `/api/job`: `start`/`end` (recorte, segundos), `target_mb` (comprimir). `merge: true` une todos en un vídeo (máx. 20).
+- `GET /api/subs?url=...&platform=...` → idiomas de subtítulos (subidos y automáticos/traducidos)
+- `GET /api/subs/file?url=...&platform=...&lang=..&auto=false` → subtítulos en `.srt`
+
+Opciones por elemento en `/api/job`: `start`/`end` (recortar, segundos), `target_mb` (comprimir), `vertical` (`blur|black|crop`, 9:16),
+`speed` (0.5–2), `mute`, `normalize`. `merge: true` une todos en un vídeo (máx. 20).
+
+Herramientas de la web (menú superior, cada una con su enlace): `#descargar`, `#recortar`, `#comprimir`, `#unir`, `#vertical`, `#audio`, `#subtitulos`, `#datos`.
 
 Monetización y estadísticas: `static/config.js`.
 

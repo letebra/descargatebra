@@ -84,6 +84,10 @@ class Item(BaseModel):
     start: float | None = None  # trim, seconds
     end: float | None = None
     target_mb: float | None = None  # compress to at most this size
+    vertical: str | None = None  # 9:16 background: blur | black | crop
+    mute: bool = False
+    normalize: bool = False
+    speed: float | None = None  # 0.5 - 2.0
 
 
 class JobRequest(BaseModel):
@@ -148,6 +152,8 @@ def validate(item: Item) -> str:
     if (item.start is not None and item.start < 0) or (item.end is not None and item.end <= (item.start or 0)):
         raise HTTPException(400, "badtrim")
     if item.target_mb is not None and not 1 <= item.target_mb <= 4000:
+        raise HTTPException(400, "invalid")
+    if item.vertical not in (None, "blur", "black", "crop") or (item.speed is not None and not 0.5 <= item.speed <= 2):
         raise HTTPException(400, "invalid")
     return url
 
@@ -342,6 +348,56 @@ def meta(url: str, platform: str):
     }
 
 
+@app.get("/api/subs")
+def subs_list(url: str, platform: str):
+    """Available subtitle languages: uploaded ones first, then automatic (incl. YouTube auto-translations)."""
+    url = validate(Item(url=url, platform=platform))
+    tmp = tempfile.mkdtemp(prefix="dt_")
+    opts = {"noplaylist": True, "quiet": True, "no_warnings": True, "skip_download": True,
+            "socket_timeout": 15, "retries": 1, "cookiefile": cookie_copy(tmp)}
+    try:
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            d = ydl.extract_info(url, download=False, process=False)
+    except yt_dlp.utils.DownloadError as e:
+        raise ydl_error(e)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+    out = []
+    for auto, key in ((False, "subtitles"), (True, "automatic_captions")):
+        for code, fmts in (d.get(key) or {}).items():
+            if code == "live_chat" or not fmts:
+                continue
+            out.append({"code": code, "name": next((f.get("name") for f in fmts if f.get("name")), code), "auto": auto})
+    return {"title": d.get("title") or "", "langs": out}
+
+
+@app.get("/api/subs/file")
+def subs_file(url: str, platform: str, lang: str, auto: bool = False):
+    url = validate(Item(url=url, platform=platform))
+    workdir = tempfile.mkdtemp(prefix="dt_")
+    opts = {"noplaylist": True, "quiet": True, "no_warnings": True, "skip_download": True,
+            "writesubtitles": not auto, "writeautomaticsub": auto, "subtitleslangs": [lang],
+            "subtitlesformat": "srt/vtt/best", "outtmpl": os.path.join(workdir, "%(id)s.%(ext)s"),
+            # "before_dl": with skip_download the default stage never runs
+            "postprocessors": [{"key": "FFmpegSubtitlesConvertor", "format": "srt", "when": "before_dl"}],
+            "quiet": True, "no_warnings": True, "noprogress": True,
+            "socket_timeout": 20, "retries": 1, "cookiefile": cookie_copy(workdir)}
+    try:
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            info = ydl.extract_info(url, download=True)
+    except yt_dlp.utils.DownloadError as e:
+        shutil.rmtree(workdir, ignore_errors=True)
+        raise ydl_error(e)
+    files = sorted(Path(workdir).glob("*.srt"))
+    if not files:
+        shutil.rmtree(workdir, ignore_errors=True)
+        raise HTTPException(404, "nosubs")
+    name = safe_name(f"{info.get('title') or info.get('id')} [{lang}]", "srt")
+    return FileResponse(files[0], media_type="application/x-subrip",
+                        headers={"Content-Disposition": f"attachment; filename*=UTF-8''{quote(name)}"},
+                        background=BackgroundTask(shutil.rmtree, workdir, ignore_errors=True))
+
+
 @app.get("/api/thumb")
 def thumb(url: str, name: str = "miniatura"):
     """Downloads a thumbnail through the server (image CDNs block direct downloads)."""
@@ -401,7 +457,7 @@ def list_entries(url: str, platform: str):
 
 ERR_TXT = {"private": "privado o requiere iniciar sesión", "notfound": "no encontrado", "noaudio": "sin audio",
            "failed": "no se pudo descargar", "nofile": "no se generó el archivo",
-           "toosmall": "no cabe en ese tamaño", "procfail": "error al procesar"}
+           "toosmall": "no cabe en ese tamaño", "procfail": "error al procesar", "nosubs": "sin subtítulos"}
 
 
 def zip_files(files: list[tuple[Path, str]], zip_path: Path):
@@ -530,9 +586,52 @@ def merge(paths: list[Path], job: Job, audio_only: bool, out: Path) -> Path:
     return out
 
 
+def vertical(path: Path, style: str, job: Job) -> Path:
+    """Horizontal -> 1080x1920 (TikTok/Shorts): blurred copy behind, black bars, or centre crop."""
+    if not is_video(path):
+        return path
+    out = path.with_name(path.stem + "_vertical.mp4")
+    if style == "crop":
+        vf = "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1"
+    elif style == "black":
+        vf = "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2,setsar=1"
+    else:  # background blurred at low resolution (cheap), then scaled up
+        vf = ("split[a][b];[a]scale=270:480:force_original_aspect_ratio=increase,crop=270:480,boxblur=10:2,"
+              "scale=1080:1920[bg];[b]scale=1080:1920:force_original_aspect_ratio=decrease[fg];"
+              "[bg][fg]overlay=(W-w)/2:(H-h)/2,setsar=1")
+    run_ffmpeg(["-i", str(path), "-filter_complex", vf + ",format=yuv420p", "-c:v", "libx264", "-preset", "veryfast",
+                "-crf", "21", "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart", str(out)],
+               job, probe(path)["duration"], "vertical")
+    return out
+
+
+def audio_fx(path: Path, it: Item, job: Job) -> Path:
+    """Mute, loudness normalization (-14 LUFS, like YouTube/TikTok) and speed change."""
+    if not (is_video(path) or is_audio(path)):
+        return path
+    info, speed = probe(path), it.speed or 1
+    video = is_video(path)
+    out = path.with_name(path.stem + "_fx" + (".mp4" if video else ".mp3"))
+    args = ["-i", str(path)]
+    if video:
+        args += ["-filter:v", f"setpts=PTS/{speed}"] if speed != 1 else []
+        args += ["-c:v", "libx264", "-preset", "veryfast", "-crf", "20"] if speed != 1 else ["-c:v", "copy"]
+    afilters = ([f"atempo={speed}"] if speed != 1 else []) + (["loudnorm=I=-14:TP=-1:LRA=11"] if it.normalize else [])
+    if it.mute or not info["audio"]:
+        args += ["-an"]
+    else:
+        args += (["-filter:a", ",".join(afilters)] if afilters else []) + (["-c:a", "aac", "-b:a", "192k"] if video else ["-c:a", "libmp3lame", "-b:a", "192k"])
+    run_ffmpeg(args + (["-movflags", "+faststart"] if video else []) + [str(out)], job, info["duration"] / speed, "audio")
+    return out
+
+
 def finish(path: Path, name: str, it: Item, job: Job, allow_trim: bool) -> tuple[Path, str]:
     if allow_trim and (it.start or it.end):
         path = trim(path, it.start, it.end, job)
+    if it.vertical:
+        path = vertical(path, it.vertical, job)
+    if it.mute or it.normalize or (it.speed and it.speed != 1):
+        path = audio_fx(path, it, job)
     if it.target_mb:
         path = compress(path, it.target_mb, job)
     return path, Path(name).stem + path.suffix if path.suffix != Path(name).suffix else name

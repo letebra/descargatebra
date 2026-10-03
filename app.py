@@ -48,6 +48,7 @@ PLATFORM_HOSTS = {
 }
 
 QUALITIES = ("best", "1080", "720", "480", "small")
+QUALITY_CAP = {"1080": 1080, "720": 720, "480": 480, "small": 360}  # max size of the video's short side
 
 
 def video_format(quality: str) -> str:
@@ -242,7 +243,29 @@ def fetch_gallery(url: str, workdir: str) -> tuple[list[tuple[Path, str]], str]:
     return [(p, p.name) for p in files], err.lower()
 
 
+def fit_quality(files: list[tuple[Path, str]], fmt: str, quality: str, job: Job | None) -> list[tuple[Path, str]]:
+    """Platforms like Instagram offer a single quality: downscale ourselves when it's above the chosen one."""
+    cap = QUALITY_CAP.get(quality)
+    if fmt != "mp4" or not cap:
+        return files
+    out = []
+    for path, name in files:
+        info = probe(path) if is_video(path) else None
+        if info and min(info["width"], info["height"]) > cap:
+            small = path.with_name(path.stem + f"_{cap}p.mp4")
+            scale = f"scale=-2:{cap}" if info["width"] >= info["height"] else f"scale={cap}:-2"
+            run_ffmpeg(["-i", str(path), "-vf", scale, "-c:v", "libx264", "-preset", "veryfast", "-crf", "22",
+                        "-c:a", "copy", "-movflags", "+faststart", str(small)], job or Job(1), info["duration"], "resize")
+            path = small
+        out.append((path, name))
+    return out
+
+
 def fetch(url: str, platform: str, fmt: str, quality: str, workdir: str, job: Job | None = None) -> list[tuple[Path, str]]:
+    return fit_quality(_fetch(url, platform, fmt, quality, workdir, job), fmt, quality, job)
+
+
+def _fetch(url: str, platform: str, fmt: str, quality: str, workdir: str, job: Job | None) -> list[tuple[Path, str]]:
     gallery_err = None
     # Instagram posts (/p/) can be carousels with photos: try gallery-dl first.
     if fmt == "mp4" and platform == "instagram" and "/p/" in url:

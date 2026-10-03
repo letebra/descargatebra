@@ -308,6 +308,16 @@ a.tile .go-link{color:#a99fff;font-size:13.5px;font-weight:600;margin-top:10px;d
       </div>
       <p class="hint" id="hint" data-i="hint"></p>
 
+      <div class="tpanel" id="qualbox" hidden>
+        <label data-i="tq_h"></label>
+        <div class="xrow"><select class="qsel" id="tquality">
+          <option value="best" data-i="q_best"></option>
+          <option value="1080" data-i="q_1080"></option>
+          <option value="720" data-i="q_720"></option>
+          <option value="480" data-i="q_480"></option>
+          <option value="small" data-i="q_small"></option>
+        </select></div>
+      </div>
       <div class="tpanel" id="trimbox" hidden>
         <label data-i="trim_h"></label>
         <div class="xrow"><input id="tstart" inputmode="decimal" autocomplete="off" placeholder="0:00"><span>→</span><input id="tend" inputmode="decimal" autocomplete="off" placeholder="1:30"></div>
@@ -493,7 +503,7 @@ es: {
   e_needaudio:'Elige al menos un cambio: velocidad distinta de 1x, quitar sonido o normalizar.', e_badspeed:'La velocidad debe estar entre 0.5 y 2.',
   subs_h:'Idioma', subs_hint:'«Automático» = generados o traducidos por YouTube.', subs_wait:'Pega un enlace…', subs_loading:'Buscando subtítulos…', subs_none:'Este vídeo no tiene subtítulos',
   subs_up:'Subidos por el autor', subs_auto:'Automáticos / traducidos', e_nosubs:'No hay subtítulos en ese idioma.', m_subs_ok:'Subtítulos descargados.',
-  stage_vertical:'Pasando a vertical', stage_audio:'Procesando audio',
+  stage_vertical:'Pasando a vertical', stage_audio:'Procesando audio', stage_resize:'Ajustando calidad', tq_h:'🎞️ Calidad',
   e_badtrim:'Revisa el recorte: usa 1:23 o segundos, y el final debe ser mayor que el inicio.', e_toosmall:'No cabe en ese tamaño ni a la mínima calidad. Prueba un tamaño mayor o recórtalo.', e_procfail:'Error al procesar el vídeo.',
   meta_loading:'Cargando datos…', copied2:'Copiado.', m_thumb:'⬇ Miniatura HD', m_copyall:'📋 Copiar todo',
   md_title:'Título', md_author:'Autor', md_followers:'Seguidores', md_date:'Fecha', md_duration:'Duración', md_views:'Visitas', md_likes:'Me gusta',
@@ -569,7 +579,7 @@ en: {
   e_needaudio:'Choose at least one change: speed other than 1x, remove sound or normalize.', e_badspeed:'Speed must be between 0.5 and 2.',
   subs_h:'Language', subs_hint:'“Automatic” = generated or translated by YouTube.', subs_wait:'Paste a link…', subs_loading:'Looking for subtitles…', subs_none:'This video has no subtitles',
   subs_up:'Uploaded by the author', subs_auto:'Automatic / translated', e_nosubs:'No subtitles in that language.', m_subs_ok:'Subtitles downloaded.',
-  stage_vertical:'Making vertical', stage_audio:'Processing audio',
+  stage_vertical:'Making vertical', stage_audio:'Processing audio', stage_resize:'Adjusting quality', tq_h:'🎞️ Quality',
   e_badtrim:'Check the trim: use 1:23 or seconds, and the end must be after the start.', e_toosmall:'It doesn\'t fit in that size even at minimum quality. Try a bigger size or trim it.', e_procfail:'Error processing the video.',
   meta_loading:'Loading info…', copied2:'Copied.', m_thumb:'⬇ HD thumbnail', m_copyall:'📋 Copy all',
   md_title:'Title', md_author:'Author', md_followers:'Followers', md_date:'Date', md_duration:'Duration', md_views:'Views', md_likes:'Likes',
@@ -936,7 +946,8 @@ async function start() {
 
   busy = true; go.disabled = true;
   $('#golabel').textContent = t('processing');
-  const asItem = it => ({url: it.url, platform: it.platform, format: tool === 'download' ? fmt : 'mp4', quality, ...tools.vals});
+  const q = tool === 'download' ? quality : tool === 'compress' ? '1080' : $('#tquality').value;
+  const asItem = it => ({url: it.url, platform: it.platform, format: tool === 'download' ? fmt : 'mp4', quality: q, ...tools.vals});
   try {
     if (multi.checked && mode === 'merge' && items.length > 1) {
       items.forEach(i => setStatus(i.row, 'run', t('st_queue')));
@@ -1163,6 +1174,7 @@ function setTool(next) {
   $('#ytsub').hidden = !isDl;
   document.querySelector('.opts').hidden = !isDl;
   $('#mode').hidden = !isDl;
+  $('#qualbox').hidden = !['trim', 'merge', 'vertical', 'audio'].includes(next);
   for (const [box, tl] of [['#trimbox', 'trim'], ['#compbox', 'compress'], ['#vertbox', 'vertical'], ['#audiobox', 'audio'], ['#subsbox', 'subs']]) $(box).hidden = next !== tl;
   if (!isDl) $('#listbtn').hidden = true;
   if (next === 'subs') loadSubLangs();
@@ -1180,6 +1192,10 @@ document.querySelectorAll('#toolnav a').forEach(a => a.onclick = e => {
 const qsel = $('#quality');
 qsel.value = quality;
 qsel.onchange = () => { quality = qsel.value; try { localStorage.setItem('quality', quality); } catch {} };
+// tools have their own quality (default 1080p), independent from the Download tool
+const tq = $('#tquality');
+try { tq.value = localStorage.getItem('toolquality') || '1080'; } catch { tq.value = '1080'; }
+tq.onchange = () => { try { localStorage.setItem('toolquality', tq.value); } catch {} };
 const syncQuality = () => { qsel.hidden = fmt !== 'mp4'; };
 document.querySelectorAll('#fmt button').forEach(b => b.addEventListener('click', syncQuality));
 

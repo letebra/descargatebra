@@ -2,7 +2,7 @@
 import {$, $$, t, lang, esc, addStrings, cfg, copyText, toolById, TOOLS} from './core.js';
 import {icon, socialIcon} from './icons.js';
 import {palette, observeReveal} from './shell.js';
-import {toolCard, bindStars} from './lobby.js';
+import {toolCard, bindStars} from './shell.js';
 
 addStrings({
   es: {pg_home: 'Inicio', pg_updated: 'Última actualización: octubre de 2026', pg_copy: 'Copiar', pg_write: 'Escribir un correo', pg_search: 'Buscar una herramienta', pg_popular: 'Las más usadas'},

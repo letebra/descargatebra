@@ -1,3 +1,4 @@
+import hashlib
 import html
 import json
 import mimetypes
@@ -106,7 +107,7 @@ async def headers_and_legacy(request: Request, call_next):
         return RedirectResponse(SITE + target + query, status_code=301)
     resp = await call_next(request)
     ctype = resp.headers.get("content-type", "")
-    if path.startswith(("/vendor/", "/img/")):
+    if path.startswith(("/vendor/", "/img/")) or (request.query_params.get("v") == ASSET_V and path.startswith(("/js/", "/css/", "/config.js"))):
         resp.headers["Cache-Control"] = "public, max-age=31536000, immutable"
     elif ctype.startswith(("text/html", "text/javascript", "application/javascript", "text/css", "application/json")):
         # Pages, scripts and styles revalidate on every visit so updates show up without Ctrl+F5.
@@ -1021,6 +1022,20 @@ def job_file(jid: str):
 # ───────────────────────── pages ─────────────────────────
 
 APP_HTML = STATIC / "app.html"
+# One version for all scripts/styles: changes on every deploy that touches them, so they can be cached forever.
+ASSET_V = hashlib.md5(b"".join(f.read_bytes() for f in sorted([*(STATIC / "js").rglob("*.js"), *(STATIC / "css").glob("*.css"),
+                                                                 STATIC / "config.js"]))).hexdigest()[:10]
+JS_FILES = sorted("/" + f.relative_to(STATIC).as_posix() for f in (STATIC / "js").rglob("*.js"))
+# The import map points every module at its versioned URL; modulepreload fetches the page's modules in parallel.
+IMPORT_MAP = json.dumps({"imports": {f: f"{f}?v={ASSET_V}" for f in JS_FILES}})
+PAGE_JS = {"lobby": ["/js/lobby.js", "/js/hero3d.js"], "tool": ["/js/tool-page.js", "/js/tools/kit.js"], "page": ["/js/pages.js"]}
+
+
+def head_js(page: str, tool: str | None) -> str:
+    mods = ["/js/core.js", "/js/shell.js", "/js/icons.js", *PAGE_JS.get(page, []), *([f"/js/tools/{tool}.js"] if tool else [])]
+    return (f'<script type="importmap">{IMPORT_MAP}</script>\n'
+            + "".join(f'<link rel="modulepreload" href="{m}?v={ASSET_V}">\n' for m in mods)
+            + f'<script type="module" src="/js/app.js?v={ASSET_V}"></script>')
 LEGACY_PLATFORM_PATHS = list(PLATFORM_PAGES)  # old /tiktok, /instagram... landing pages
 
 
@@ -1040,6 +1055,7 @@ def render(page: str, title: str, desc: str, path: str, h1: str = "", lead: str 
         "{{PAGE_DATA}}": esc(json.dumps(data, ensure_ascii=False)),
         "{{JSONLD}}": json.dumps(ld, ensure_ascii=False).replace("</", "<\\/"),
         "{{SITE_DATA}}": json.dumps(DATA, ensure_ascii=False).replace("</", "<\\/"),
+        "{{HEAD_JS}}": head_js(page, data.get("tool")), "{{V}}": ASSET_V,
     }
     for k, v in repl.items():
         doc = doc.replace(k, v)

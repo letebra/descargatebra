@@ -2,7 +2,7 @@
 import {$, t, L, lang, esc, addStrings, SITE, toolById, catById, toolsOfCat, TOOLS, favs, markRecent, takeHandoff} from './core.js';
 import {icon} from './icons.js';
 import {tile, observeReveal} from './shell.js';
-import {toolCard, bindStars} from './lobby.js';
+import {toolCard, bindStars} from './shell.js';
 
 addStrings({
   es: {tp_home: 'Inicio', tp_how: 'Cómo funciona', tp_faq: 'Preguntas frecuentes', tp_rel: 'También te puede servir', tp_free: 'Gratis', tp_noreg: 'Sin registro',

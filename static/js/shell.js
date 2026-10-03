@@ -1,9 +1,10 @@
 // Header, mega menu, mobile sheet, command palette (Ctrl+K), footer and the ambient effects.
-import {$, $$, SITE, TOOLS, CATS, catById, toolsOfCat, esc, t, L, lang, setLang, addStrings, cfg, detectPlatform, extractUrl, toolsFor, setHandoff} from './core.js';
+import {$, $$, SITE, TOOLS, CATS, catById, toolsOfCat, esc, t, L, lang, setLang, addStrings, cfg, detectPlatform, extractUrl, toolsFor, setHandoff, favs} from './core.js';
 import {icon, toolIcon, gem, socialIcon} from './icons.js';
 
 addStrings({
   es: {
+    tc_open: 'Abrir', tc_browser: 'En tu navegador', tc_server: 'En el servidor',
     nav_tools: 'Herramientas', nav_faq: 'FAQ', search_ph: 'Buscar herramientas…', support: 'Apoyar', menu: 'Menú', close: 'Cerrar',
     pal_ph: 'Busca una herramienta o pega un enlace…', pal_tools: 'Herramientas', pal_pages: 'Páginas', pal_link: 'Con este enlace',
     pal_nav: 'navegar', pal_open: 'abrir', pal_close: 'cerrar', pal_empty: 'Nada por aquí. Prueba con “mp3”, “recortar” o “fondo”.',
@@ -15,6 +16,7 @@ addStrings({
     p_faq: 'Preguntas frecuentes', p_contact: 'Contacto', p_support: 'Apoyar el proyecto', p_news: 'Novedades', p_home: 'Inicio',
   },
   en: {
+    tc_open: 'Open', tc_browser: 'In your browser', tc_server: 'On the server',
     nav_tools: 'Tools', nav_faq: 'FAQ', search_ph: 'Search tools…', support: 'Support', menu: 'Menu', close: 'Close',
     pal_ph: 'Search a tool or paste a link…', pal_tools: 'Tools', pal_pages: 'Pages', pal_link: 'With this link',
     pal_nav: 'navigate', pal_open: 'open', pal_close: 'close', pal_empty: 'Nothing here. Try “mp3”, “trim” or “background”.',
@@ -28,7 +30,23 @@ addStrings({
 });
 
 export const catColor = tool => (catById(tool.cat) || {}).color || '#6d5efc';
-export const tile = (tool, cls = '') => `<span class="ti ${cls}" style="--c:${catColor(tool)}">${toolIcon(tool)}</span>`;
+export const tile = (tool, cls = '', color) => `<span class="ti ${cls}" style="--c:${color || catColor(tool)}">${toolIcon(tool)}</span>`;
+
+// Tool card; inside a category section it takes that category's color so every section has a single color.
+export function toolCard(x, d = 0, color = catColor(x)) {
+  return `<a class="tcard glass reveal" data-tilt href="/${x.slug}" style="--c:${color};--d:${d}ms">
+    <div class="tcard-top">${tile(x, '', color)}<button class="star ${favs.has(x.id) ? 'on' : ''}" data-fav="${x.id}" aria-label="★" aria-pressed="${favs.has(x.id)}">${icon('star')}</button></div>
+    <div><h3>${esc(L(x.name))}</h3></div><p>${esc(L(x.desc))}</p>
+    <div class="tcard-foot"><span class="badge">${icon(x.engine === 'browser' ? 'lock' : 'zap')} ${esc(t(x.engine === 'browser' ? 'tc_browser' : 'tc_server'))}</span><span class="go">${t('tc_open')}${icon('arrowR')}</span></div></a>`;
+}
+
+export function bindStars(root = document) {
+  $$('[data-fav]', root).forEach(b => b.onclick = e => {
+    e.preventDefault(); e.stopPropagation();
+    const on = favs.toggle(b.dataset.fav);
+    $$(`[data-fav="${b.dataset.fav}"]`).forEach(s => { s.classList.toggle('on', on); s.setAttribute('aria-pressed', on); s.classList.remove('pop'); void s.offsetWidth; s.classList.add('pop'); });
+  });
+}
 export const catTile = (c, cls = '') => `<span class="ti ${cls}" style="--c:${c.color}">${icon(c.icon)}</span>`;
 const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
 const kbdLabel = isMac ? '⌘K' : 'Ctrl K';

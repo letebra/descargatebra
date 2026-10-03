@@ -2,7 +2,7 @@
 import {$, $$, TOOLS, CATS, toolById, toolsOfCat, esc, t, L, lang, addStrings, cfg, favs, recents, history, relTime,
   detectPlatform, extractUrl, toolsFor, setHandoff, putHandoffFile, copyText} from './core.js';
 import {icon, toolIcon, platformIcon} from './icons.js';
-import {tile, catTile, palette, observeReveal, catColor} from './shell.js';
+import {tile, catTile, palette, observeReveal, catColor, toolCard, bindStars} from './shell.js';
 import {mountHero} from './hero3d.js';
 
 addStrings({
@@ -45,29 +45,14 @@ addStrings({
 // Old one-page links (#recortar…) now live on their own URLs.
 const OLD_HASH = {'#descargar': '/descargar', '#recortar': '/recortar', '#comprimir': '/comprimir', '#unir': '/unir', '#vertical': '/vertical', '#audio': '/audio', '#subtitulos': '/subtitulos', '#datos': '/datos'};
 
-export function toolCard(x, d = 0) {
-  return `<a class="tcard glass reveal" data-tilt href="/${x.slug}" style="--c:${catColor(x)};--d:${d}ms">
-    <div class="tcard-top">${tile(x)}<button class="star ${favs.has(x.id) ? 'on' : ''}" data-fav="${x.id}" aria-label="★" aria-pressed="${favs.has(x.id)}">${icon('star')}</button></div>
-    <div><h3>${esc(L(x.name))}</h3></div><p>${esc(L(x.desc))}</p>
-    <div class="tcard-foot"><span class="badge">${icon(x.engine === 'browser' ? 'lock' : 'zap')} ${esc(t(x.engine === 'browser' ? 'browser' : 'server'))}</span><span class="go">${t('open')}${icon('arrowR')}</span></div></a>`;
-}
-
-export function bindStars(root = document) {
-  $$('[data-fav]', root).forEach(b => b.onclick = e => {
-    e.preventDefault(); e.stopPropagation();
-    const on = favs.toggle(b.dataset.fav);
-    $$(`[data-fav="${b.dataset.fav}"]`).forEach(s => { s.classList.toggle('on', on); s.setAttribute('aria-pressed', on); s.classList.remove('pop'); void s.offsetWidth; s.classList.add('pop'); });
-  });
-}
-
 export function render(app) {
   if (OLD_HASH[location.hash]) return location.replace(OLD_HASH[location.hash]);
   const n = TOOLS.length;
   app.innerHTML = `
   <section class="hero"><div class="wrap hero-inner">
     <div class="hero-copy">
-      <span class="eyebrow glass" style="animation:fade 1s var(--ease) both"><b>${t('eyebrow')}</b>${t('eyebrow_t', n)}</span>
-      <h1><span class="line"><span style="--d:.05s">${t('h1a')}</span></span><span class="line"><span class="grad-text" style="--d:.17s">${t('h1b')}</span></span><span class="line"><span style="--d:.29s">${t('h1c')}</span></span></h1>
+      <span class="eyebrow glass" style="animation:fade .5s var(--ease) both"><b>${t('eyebrow')}</b>${t('eyebrow_t', n)}</span>
+      <h1><span class="line"><span style="--d:0s">${t('h1a')}</span></span><span class="line"><span class="grad-text" style="--d:.06s">${t('h1b')}</span></span><span class="line"><span style="--d:.12s">${t('h1c')}</span></span></h1>
       <p class="lead">${t('lead')}</p>
       <label class="hero-search glass" data-refract>${icon('search')}<input id="hero-q" type="text" placeholder="${esc(t('hs_ph'))}" autocomplete="off" spellcheck="false" aria-label="${esc(t('hs_ph'))}"><span class="kbd">/</span></label>
       <div class="hero-chips">
@@ -80,7 +65,7 @@ export function render(app) {
       <div class="hero-stats"><div><b data-count="${n}">0</b><span>${t('st_tools')}</span></div><div><b data-count="9">0</b><span>${t('st_plat')}</span></div><div><b>0</b><span>${t('st_ads')}</span></div></div>
     </div>
     <div class="hero-visual" id="hero-3d"></div>
-  </div><span class="scroll-cue" aria-hidden="true"></span></section>
+  </div></section>
 
   <div class="wrap">
     <section class="section" style="padding-top:20px"><div class="quick glass reveal" id="quick"></div></section>
@@ -91,7 +76,7 @@ export function render(app) {
       ${CATS.map(c => {
         const list = toolsOfCat(c.id);
         return `<section class="cat" id="cat-${c.id}"><div class="cat-head reveal">${catTile(c)}<div><h2>${esc(L(c.name))}</h2><p>${esc(L(c.blurb))}</p></div><span class="count">${t('count', list.length)}</span></div>
-          <div class="tgrid">${list.map((x, i) => toolCard(x, i * 60)).join('')}</div></section>`;
+          <div class="tgrid">${list.map((x, i) => toolCard(x, i * 60, c.color)).join('')}</div></section>`;
       }).join('')}
     </section>
 
@@ -121,8 +106,8 @@ export function render(app) {
 
 function countUp() {
   $$('[data-count]').forEach(el => {
-    const to = +el.dataset.count, t0 = performance.now() + 700;
-    const step = now => { const p = Math.min(1, Math.max(0, (now - t0) / 1100)); el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(step); };
+    const to = +el.dataset.count, t0 = performance.now() + 250;
+    const step = now => { const p = Math.min(1, Math.max(0, (now - t0) / 900)); el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(step); };
     requestAnimationFrame(step);
   });
 }

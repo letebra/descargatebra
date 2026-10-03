@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{TITLE}}</title>
+<meta name="description" content="{{DESC}}">
+<link rel="canonical" href="{{CANONICAL}}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Letebra Tools">
+<meta property="og:title" content="{{TITLE}}">
+<meta property="og:description" content="{{DESC}}">
+<meta property="og:url" content="{{CANONICAL}}">
+<meta property="og:image" content="{{OG_IMAGE}}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@SoyLetebra">
+<link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/img/icon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="/img/icon-180.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0b0b14">
+<meta name="color-scheme" content="dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Letebra Tools">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/ui.css">
+<script type="application/ld+json">{{JSONLD}}</script>
+<script id="site-data" type="application/json">{{SITE_DATA}}</script>
+<script src="/config.js"></script>
+<script type="module" src="/js/app.js"></script>
+</head>
+<body data-page="{{PAGE_DATA}}">
+<div class="scene" aria-hidden="true">
+  <i class="orb o1"></i><i class="orb o2"></i><i class="orb o3"></i><i class="orb o4"></i>
+  <div class="grain"></div>
+</div>
+<svg class="svg-defs" width="0" height="0" aria-hidden="true" focusable="false">
+  <defs>
+    <!-- Liquid glass: displaces what's behind the element (Chromium only; elsewhere plain blur). -->
+    <filter id="lg-refract" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+      <feImage href="/img/lens-map.svg" preserveAspectRatio="none" result="map"/>
+      <feDisplacementMap in="SourceGraphic" in2="map" scale="36" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+</svg>
+<header class="hdr" id="hdr"></header>
+<main id="app" class="app">
+  <section class="ssr wrap"><h1>{{H1}}</h1><p>{{LEAD}}</p></section>
+</main>
+<footer class="ftr" id="ftr"></footer>
+<noscript><p class="wrap noscript">Activa JavaScript para usar las herramientas de Letebra Tools.</p></noscript>
+</body>
+</html>

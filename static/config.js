@@ -1,43 +1,28 @@
-// Monetización: rellena los enlaces. Lo que quede vacío ('') no se muestra en la web.
+// Ajustes que cambias tú sin tocar código. Lo que quede vacío ('') no se muestra.
 
-// Tu página de Ko-fi o Buy Me a Coffee
-const SUPPORT_URL = 'https://ko-fi.com/letebra';
+// Tu página de Ko-fi: la web es gratis y sin anuncios gracias a esto.
+var SUPPORT_URL = 'https://ko-fi.com/letebra';
 
-// Enlaces de afiliado (sección "Recomendados"). desc = español, desc_en = inglés
-const AFFILIATES = [
-  {icon: '🪑', name: 'Blacklyte', url: 'https://blacklyte.com/LETEBRA',
-   desc: 'Sillas y mobiliario gaming para crear contenido con comodidad.',
-   desc_en: 'Gaming chairs and furniture to create content in comfort.'},
-  {icon: '⚡', name: 'Poggers', url: 'https://poggerslifestyle.com/LETEBRITA',
-   desc: 'Bebidas y energía para tus sesiones largas de edición y gaming.',
-   desc_en: 'Drinks and energy for your long editing and gaming sessions.'},
-  {icon: '🎮', name: 'Instant Gaming', url: 'https://www.instant-gaming.com/?igr=letebra',
-   desc: 'Juegos para PC y consolas hasta un 90% más baratos.',
-   desc_en: 'PC and console games up to 90% cheaper.'},
+var CONTACT_EMAIL = 'contacto@letebra.com';
+
+// Redes (pie de página y contacto).
+var SOCIALS = [
+  {id: 'youtube', name: 'YouTube', url: 'https://www.youtube.com/@Letebra'},
+  {id: 'twitch', name: 'Twitch', url: 'https://www.twitch.tv/letebra_oficial'},
+  {id: 'instagram', name: 'Instagram', url: 'https://www.instagram.com/letebra_oficial/'},
+  {id: 'tiktok', name: 'TikTok', url: 'https://www.tiktok.com/@letebra'},
+  {id: 'x', name: 'X', url: 'https://x.com/SoyLetebra'},
 ];
 
-// Estadísticas (GoatCounter): pon tu código, p. ej. 'descargatebra' para descargatebra.goatcounter.com
-const GOATCOUNTER = '';
+// "Mi setup de creador" (enlaces de afiliado, en el pie). desc = español, desc_en = inglés
+var AFFILIATES = [
+  {icon: '🪑', name: 'Blacklyte', url: 'https://blacklyte.com/LETEBRA',
+   desc: 'Mi silla y mobiliario gaming.', desc_en: 'My gaming chair and furniture.'},
+  {icon: '⚡', name: 'Poggers', url: 'https://poggerslifestyle.com/LETEBRITA',
+   desc: 'Energía para las sesiones largas.', desc_en: 'Energy for long sessions.'},
+  {icon: '🎮', name: 'Instant Gaming', url: 'https://www.instant-gaming.com/?igr=letebra',
+   desc: 'Donde compro mis juegos más baratos.', desc_en: 'Where I buy my games cheaper.'},
+];
 
-// Anuncios laterales (160x600, solo en pantallas anchas). Pega aquí el código del banner que te da la red
-// de anuncios (p. ej. Adsterra "Banner 160x600"). Vacío ('') = no se muestra nada.
-const AD_LEFT = `<script>
-  atOptions = {
-    'key' : '0a16b44137d875fbd43a0b3fe8db2710',
-    'format' : 'iframe',
-    'height' : 600,
-    'width' : 160,
-    'params' : {}
-  };
-</script>
-<script src="https://bellnewyork.org/22/0a16b44137d875fbd43a0b3fe8db2710"></script>`;
-const AD_RIGHT = `<script>
-  atOptions = {
-    'key' : '9dcfef6e1fb07c8177617e8a195c7f4c',
-    'format' : 'iframe',
-    'height' : 300,
-    'width' : 160,
-    'params' : {}
-  };
-</script>
-<script src="https://bellnewyork.org/22/9dcfef6e1fb07c8177617e8a195c7f4c"></script>`;
+// Estadísticas sin cookies (GoatCounter): pon tu código, p. ej. 'letebratools' para letebratools.goatcounter.com
+var GOATCOUNTER = '';

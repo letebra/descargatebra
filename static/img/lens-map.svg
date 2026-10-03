@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" preserveAspectRatio="none">
+  <!-- Displacement map for the liquid-glass refraction: neutral (128) in the middle, pushing outwards near the edges. -->
+  <defs>
+    <linearGradient id="r" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#ff0000"/><stop offset=".18" stop-color="#800000"/><stop offset=".82" stop-color="#800000"/><stop offset="1" stop-color="#000000"/></linearGradient>
+    <linearGradient id="g" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#00ff00"/><stop offset=".22" stop-color="#008000"/><stop offset=".78" stop-color="#008000"/><stop offset="1" stop-color="#000000"/></linearGradient>
+  </defs>
+  <rect width="200" height="200" fill="url(#r)"/>
+  <rect width="200" height="200" fill="url(#g)" style="mix-blend-mode:screen"/>
+</svg>

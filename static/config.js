@@ -18,3 +18,8 @@ const AFFILIATES = [
 
 // Estadísticas (GoatCounter): pon tu código, p. ej. 'descargatebra' para descargatebra.goatcounter.com
 const GOATCOUNTER = '';
+
+// Anuncios laterales (160x600, solo en pantallas anchas). Pega aquí el código del banner que te da la red
+// de anuncios (p. ej. Adsterra "Banner 160x600"). Vacío ('') = no se muestra nada.
+const AD_LEFT = ``;
+const AD_RIGHT = ``;

@@ -466,7 +466,7 @@ es: {
   st_queue:'En cola', st_dl:'Descargando', st_ok:'✓ Listo', st_zip:'✓ En ZIP', st_err:'✕ Error', st_badplat:'Plataforma incorrecta', st_badurl:'Enlace no válido',
   e_invalid:'Enlace no válido.', e_mismatch:'El enlace no corresponde a la plataforma seleccionada.', e_private:'El contenido es privado o la plataforma pide iniciar sesión para verlo.',
   e_notfound:'Contenido no encontrado o no disponible.', e_failed:'No se pudo descargar este enlace. Comprueba que es público.', e_nofile:'No se generó el archivo.',
-  e_empty:'No hay enlaces.', e_toomany:'Máximo 50 enlaces por ZIP. Para más, usa «Por separado».', e_allfailed:'No se pudo descargar ninguno de los enlaces.', e_noaudio:'Este enlace no tiene audio (es una imagen).', e_ytbot:'YouTube ha bloqueado temporalmente el servidor (pide verificar que no es un bot). Se soluciona añadiendo cookies de YouTube en Render.', e_generic:'Error al descargar.',
+  e_empty:'No hay enlaces.', e_toomany:'Máximo 50 enlaces por ZIP. Para más, usa «Por separado».', e_allfailed:'No se pudo descargar ninguno de los enlaces.', e_noaudio:'Este enlace no tiene audio (es una imagen).', e_restart:'El servidor se reinició mientras descargaba (actualización o falta de memoria). Vuelve a intentarlo en un minuto.', e_ytbot:'YouTube ha bloqueado temporalmente el servidor (pide verificar que no es un bot). Se soluciona añadiendo cookies de YouTube en Render.', e_generic:'Error al descargar.',
   q_best:'Máxima (4K)', q_1080:'1080p', q_720:'720p', q_480:'480p', q_small:'Más ligera',
   st_proc:'Procesando', st_send:'Enviando', eta_left:'quedan', m_dl_n:(i,n)=>`Descargando ${i} de ${n}…`,
   list_load:'📃 Cargar todos en descarga múltiple', list_loading:'Cargando lista…', list_count:n=>`${n} elementos`, list_unknown:'Lista / perfil',
@@ -542,7 +542,7 @@ en: {
   st_queue:'Queued', st_dl:'Downloading', st_ok:'✓ Done', st_zip:'✓ In ZIP', st_err:'✕ Error', st_badplat:'Wrong platform', st_badurl:'Invalid link',
   e_invalid:'Invalid link.', e_mismatch:'The link doesn\'t match the selected platform.', e_private:'The content is private or the platform requires login to view it.',
   e_notfound:'Content not found or unavailable.', e_failed:'Couldn\'t download this link. Make sure it\'s public.', e_nofile:'The file wasn\'t generated.',
-  e_empty:'No links.', e_toomany:'Maximum 50 links per ZIP. For more, use “Separate files”.', e_allfailed:'None of the links could be downloaded.', e_noaudio:'This link has no audio (it\'s an image).', e_ytbot:'YouTube has temporarily blocked the server (bot check). Fix it by adding YouTube cookies on Render.', e_generic:'Download error.',
+  e_empty:'No links.', e_toomany:'Maximum 50 links per ZIP. For more, use “Separate files”.', e_allfailed:'None of the links could be downloaded.', e_noaudio:'This link has no audio (it\'s an image).', e_restart:'The server restarted while downloading (update or out of memory). Try again in a minute.', e_ytbot:'YouTube has temporarily blocked the server (bot check). Fix it by adding YouTube cookies on Render.', e_generic:'Download error.',
   q_best:'Max (4K)', q_1080:'1080p', q_720:'720p', q_480:'480p', q_small:'Smallest',
   st_proc:'Processing', st_send:'Sending', eta_left:'left', m_dl_n:(i,n)=>`Downloading ${i} of ${n}…`,
   list_load:'📃 Load all into bulk download', list_loading:'Loading list…', list_count:n=>`${n} items`, list_unknown:'Playlist / profile',
@@ -865,6 +865,7 @@ async function runJob(body, onState) {
   for (;;) {
     await new Promise(r => setTimeout(r, 700));
     const res = await fetch(`/api/job/${id}`);
+    if (res.status === 404) throw new Error(t('e_restart'));
     if (!res.ok) throw new Error(t('e_generic'));
     const st = await res.json();
     if (st.status === 'error') { onState(st); throw new Error(errText(st.error)); }

@@ -77,6 +77,15 @@ SEO_PAGES = {
 app = FastAPI(title="DescargaTebra")
 
 
+@app.middleware("http")
+async def no_stale_pages(request, call_next):
+    # Pages, scripts and styles revalidate on every visit so updates show up without Ctrl+F5.
+    resp = await call_next(request)
+    if resp.headers.get("content-type", "").startswith(("text/html", "text/javascript", "application/javascript", "text/css")):
+        resp.headers["Cache-Control"] = "no-cache"
+    return resp
+
+
 class Item(BaseModel):
     url: str
     platform: str

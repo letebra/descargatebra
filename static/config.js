@@ -33,11 +33,11 @@ const AD_LEFT = `<script>
 <script src="https://bellnewyork.org/22/0a16b44137d875fbd43a0b3fe8db2710"></script>`;
 const AD_RIGHT = `<script>
   atOptions = {
-    'key' : '0a16b44137d875fbd43a0b3fe8db2710',
+    'key' : '9dcfef6e1fb07c8177617e8a195c7f4c',
     'format' : 'iframe',
-    'height' : 600,
+    'height' : 300,
     'width' : 160,
     'params' : {}
   };
 </script>
-<script src="https://bellnewyork.org/22/0a16b44137d875fbd43a0b3fe8db2710"></script>`;
+<script src="https://bellnewyork.org/22/9dcfef6e1fb07c8177617e8a195c7f4c"></script>`;

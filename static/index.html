@@ -1283,6 +1283,7 @@ addEventListener('hashchange', () => setTool(Object.keys(TOOL_HASH).find(k => '#
 for (const [id, code] of [['#adl', typeof AD_LEFT === 'string' ? AD_LEFT : ''], ['#adr', typeof AD_RIGHT === 'string' ? AD_RIGHT : '']]) {
   if (!code.trim()) continue;
   const f = Object.assign(document.createElement('iframe'), {title: 'ad', loading: 'lazy', scrolling: 'no'});
+  f.style.height = (parseInt(code.match(/'height'\s*:\s*(\d+)/)?.[1]) || 600) + 'px';  // banner's own height (600 or 300)
   f.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox');
   f.srcdoc = `<!doctype html><html><head><meta charset="utf-8"><base target="_blank"></head><body style="margin:0;background:transparent;overflow:hidden">${code}</body></html>`;
   $(id).append(f);

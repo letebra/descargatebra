@@ -793,6 +793,12 @@ def sitemap():
                              media_type="application/xml")
 
 
+@app.get("/ping", include_in_schema=False)
+def ping():
+    """Tiny response for uptime pings (cron-job.org) so the free instance never sleeps."""
+    return PlainTextResponse("ok")
+
+
 @app.get("/robots.txt", include_in_schema=False)
 def robots():
     return PlainTextResponse(f"User-agent: *\nAllow: /\nDisallow: /api/\nSitemap: {SITE}/sitemap.xml\n")

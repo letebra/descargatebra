@@ -21,5 +21,23 @@ const GOATCOUNTER = '';
 
 // Anuncios laterales (160x600, solo en pantallas anchas). Pega aquí el código del banner que te da la red
 // de anuncios (p. ej. Adsterra "Banner 160x600"). Vacío ('') = no se muestra nada.
-const AD_LEFT = ``;
-const AD_RIGHT = ``;
+const AD_LEFT = `<script>
+  atOptions = {
+    'key' : '0a16b44137d875fbd43a0b3fe8db2710',
+    'format' : 'iframe',
+    'height' : 600,
+    'width' : 160,
+    'params' : {}
+  };
+</script>
+<script src="https://bellnewyork.org/22/0a16b44137d875fbd43a0b3fe8db2710"></script>`;
+const AD_RIGHT = `<script>
+  atOptions = {
+    'key' : '0a16b44137d875fbd43a0b3fe8db2710',
+    'format' : 'iframe',
+    'height' : 600,
+    'width' : 160,
+    'params' : {}
+  };
+</script>
+<script src="https://bellnewyork.org/22/0a16b44137d875fbd43a0b3fe8db2710"></script>`;

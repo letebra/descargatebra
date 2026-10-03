@@ -131,7 +131,7 @@ input[type=color].inp{padding:6px;height:48px;cursor:pointer}
 .logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:800;font-size:18.5px;letter-spacing:-.025em;flex:none}
 .logo svg{width:34px;height:34px;filter:drop-shadow(0 4px 12px rgba(177,92,255,.55));transition:transform .6s var(--spring)}
 .logo:hover svg{transform:rotate(-8deg) scale(1.08)}
-.logo b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800}
+.logo b{background:linear-gradient(90deg,#b4a8ff,#ff93cb);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800}
 .hdr-nav{display:flex;align-items:center;gap:4px;margin-left:14px}
 .hdr-link{display:inline-flex;align-items:center;gap:7px;height:40px;padding:0 14px;border-radius:99px;border:0;background:transparent;color:var(--muted);font-weight:650;font-size:14px;text-decoration:none;transition:all .2s}
 .hdr-link:hover,.hdr-link[aria-expanded=true]{color:var(--text);background:rgba(255,255,255,.07)}
@@ -197,6 +197,8 @@ input[type=color].inp{padding:6px;height:48px;cursor:pointer}
 .palette-item b{display:block;font-size:14.5px}
 .palette-item small{display:block;color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .palette-item>div{min-width:0;flex:1}
+.palette-item>svg{width:16px;height:16px;flex:none;color:var(--dim)}
+.palette-item.on>svg{color:var(--text)}
 .palette-foot{display:flex;gap:16px;padding:10px 16px;border-top:1px solid rgba(255,255,255,.07);font-size:12px;color:var(--dim)}
 .palette-foot span{display:flex;align-items:center;gap:6px}
 .palette-empty{padding:28px;text-align:center;color:var(--muted)}

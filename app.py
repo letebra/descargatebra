@@ -133,6 +133,9 @@ class Job:
 
 
 JOBS: dict[str, Job] = {}
+# One extraction at a time: for YouTube each one runs Deno to solve the player's JS, and two at once
+# (e.g. preview + download) don't fit in a 512 MB instance. Downloads themselves run in parallel.
+EXTRACT = threading.Lock()
 
 
 def host_ok(platform: str, host: str) -> bool:
@@ -208,7 +211,9 @@ def fetch_ytdlp(url: str, fmt: str, quality: str, workdir: str, job: Job | None)
         opts["remuxvideo"] = "mp4"
     try:
         with yt_dlp.YoutubeDL(opts) as ydl:
-            info = ydl.extract_info(url, download=True)
+            with EXTRACT:
+                info = ydl.extract_info(url, download=False)
+            info = ydl.process_ie_result(info, download=True)
     except yt_dlp.utils.DownloadError as e:
         raise ydl_error(e)
     if info.get("entries") is not None:
@@ -275,7 +280,7 @@ def info(url: str, platform: str):
     opts = {"noplaylist": True, "quiet": True, "no_warnings": True, "skip_download": True,
             "socket_timeout": 15, "retries": 1, "cookiefile": cookie_copy(tmp)}
     try:
-        with yt_dlp.YoutubeDL(opts) as ydl:
+        with EXTRACT, yt_dlp.YoutubeDL(opts) as ydl:
             data = ydl.extract_info(url, download=False, process=False)
             for _ in range(2):  # short links / channel roots redirect to the real page
                 if data.get("_type") not in ("url", "url_transparent") or not data.get("url"):
@@ -309,7 +314,7 @@ def meta(url: str, platform: str):
     opts = {"noplaylist": True, "quiet": True, "no_warnings": True, "skip_download": True,
             "socket_timeout": 15, "retries": 1, "cookiefile": cookie_copy(tmp)}
     try:
-        with yt_dlp.YoutubeDL(opts) as ydl:
+        with EXTRACT, yt_dlp.YoutubeDL(opts) as ydl:
             d = ydl.extract_info(url, download=False, process=False)
             for _ in range(2):
                 if d.get("_type") not in ("url", "url_transparent") or not d.get("url"):
@@ -359,7 +364,7 @@ def subs_list(url: str, platform: str):
     opts = {"noplaylist": True, "quiet": True, "no_warnings": True, "skip_download": True,
             "socket_timeout": 15, "retries": 1, "cookiefile": cookie_copy(tmp)}
     try:
-        with yt_dlp.YoutubeDL(opts) as ydl:
+        with EXTRACT, yt_dlp.YoutubeDL(opts) as ydl:
             d = ydl.extract_info(url, download=False, process=False)
     except yt_dlp.utils.DownloadError as e:
         raise ydl_error(e)
@@ -386,7 +391,7 @@ def subs_file(url: str, platform: str, lang: str, auto: bool = False):
             "quiet": True, "no_warnings": True, "noprogress": True,
             "socket_timeout": 20, "retries": 1, "cookiefile": cookie_copy(workdir)}
     try:
-        with yt_dlp.YoutubeDL(opts) as ydl:
+        with EXTRACT, yt_dlp.YoutubeDL(opts) as ydl:
             info = ydl.extract_info(url, download=True)
     except yt_dlp.utils.DownloadError as e:
         shutil.rmtree(workdir, ignore_errors=True)
@@ -437,7 +442,7 @@ def list_entries(url: str, platform: str):
             "socket_timeout": 20, "retries": 1, "cookiefile": cookie_copy(tmp)}
     out = []
     try:
-        with yt_dlp.YoutubeDL(opts) as ydl:
+        with EXTRACT, yt_dlp.YoutubeDL(opts) as ydl:
             data = ydl.extract_info(url, download=False)
             entries = list(data.get("entries") or [])
             # Channel roots list their tabs (Videos, Shorts...): expand them one level.

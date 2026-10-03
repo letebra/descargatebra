@@ -168,7 +168,8 @@ a.tile .go-link{color:#a99fff;font-size:13.5px;font-weight:600;margin-top:10px;d
 .sidead iframe{display:block;width:160px;height:600px;border:0;border-radius:8px;background:transparent}
 .sidead.l{right:calc(50% + 440px + 32px)}
 .sidead.r{left:calc(50% + 440px + 32px)}
-@media(min-width:1320px) and (min-height:760px){.sidead.on{display:block}}
+.adnote{margin-top:10px;color:var(--muted);font-size:11.5px;line-height:1.45;text-align:center}
+@media(min-width:1320px) and (min-height:840px){.sidead.on{display:block}}
 .field{overflow:hidden}
 .bar{position:absolute;left:0;bottom:0;height:3px;width:0;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:width .35s}
 .optr{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -430,8 +431,8 @@ a.tile .go-link{color:#a99fff;font-size:13.5px;font-weight:600;margin-top:10px;d
   </section>
 </main>
 
-<aside class="sidead l" id="adl"><small data-i="ad_label"></small></aside>
-<aside class="sidead r" id="adr"><small data-i="ad_label"></small></aside>
+<aside class="sidead l" id="adl"><small data-i="ad_label"></small><p class="adnote" data-i="ad_note"></p></aside>
+<aside class="sidead r" id="adr"><small data-i="ad_label"></small><p class="adnote" data-i="ad_note"></p></aside>
 
 <footer>
   <div class="wrap">
@@ -491,7 +492,7 @@ es: {
   list_load:'📃 Cargar todos en descarga múltiple', list_loading:'Cargando lista…', list_count:n=>`${n} elementos`, list_unknown:'Lista / perfil',
   list_loaded:n=>`${n} enlaces cargados. Elige «Por separado» o «Todo en 1 ZIP» y pulsa descargar.`,
   tip:'⌨️ Consejo: pulsa Ctrl+V en cualquier parte de la página y se descargará solo.',
-  ad_label:'PUBLICIDAD', tool_download:'⬇ Descargar', tool_trim:'✂️ Recortar', tool_compress:'🗜️ Comprimir', tool_merge:'🔗 Unir', tool_info:'📋 Datos',
+  ad_label:'PUBLICIDAD', ad_note:'💜 Este anuncio paga el servidor y es lo que permite que DescargaTebra siga siendo gratis, sin límites y sin registro. Gracias por dejarlo ahí.', tool_download:'⬇ Descargar', tool_trim:'✂️ Recortar', tool_compress:'🗜️ Comprimir', tool_merge:'🔗 Unir', tool_info:'📋 Datos',
   h1_trim:'Recorta vídeos de <span>TikTok, Instagram, YouTube y más</span>', sub_trim:'Pega el enlace, elige desde qué segundo hasta cuál y descarga solo ese trozo.',
   h1_compress:'Comprime vídeos <span>para WhatsApp o Discord</span>', sub_compress:'Pega el enlace, elige el tamaño máximo y lo descargas listo para enviar.',
   h1_merge:'Une varios clips <span>en un solo vídeo</span>', sub_merge:'Pega un enlace por casilla (puedes mezclar plataformas) y los descargas unidos en un único MP4.',
@@ -567,7 +568,7 @@ en: {
   list_load:'📃 Load all into bulk download', list_loading:'Loading list…', list_count:n=>`${n} items`, list_unknown:'Playlist / profile',
   list_loaded:n=>`${n} links loaded. Choose “Separate files” or “All in 1 ZIP” and hit download.`,
   tip:'⌨️ Tip: press Ctrl+V anywhere on the page and it downloads by itself.',
-  ad_label:'ADVERTISEMENT', tool_download:'⬇ Download', tool_trim:'✂️ Trim', tool_compress:'🗜️ Compress', tool_merge:'🔗 Join', tool_info:'📋 Info',
+  ad_label:'ADVERTISEMENT', ad_note:'💜 This ad pays for the server and is what keeps DescargaTebra free, unlimited and sign-up free. Thanks for letting it stay.', tool_download:'⬇ Download', tool_trim:'✂️ Trim', tool_compress:'🗜️ Compress', tool_merge:'🔗 Join', tool_info:'📋 Info',
   h1_trim:'Trim videos from <span>TikTok, Instagram, YouTube & more</span>', sub_trim:'Paste the link, choose from which second to which, and download just that part.',
   h1_compress:'Compress videos <span>for WhatsApp or Discord</span>', sub_compress:'Paste the link, choose the max size and download it ready to send.',
   h1_merge:'Join several clips <span>into one video</span>', sub_merge:'Paste one link per box (you can mix platforms) and download them joined into a single MP4.',
@@ -1280,15 +1281,23 @@ setTool(startTool);
 addEventListener('hashchange', () => setTool(Object.keys(TOOL_HASH).find(k => '#' + TOOL_HASH[k] === location.hash) || 'download'));
 
 // Side ads: each one in its own sandboxed iframe (can't redirect the page).
+// Only loaded on screens wide enough to show them (no hidden, unseen impressions on mobile).
+const adMQ = matchMedia('(min-width:1320px) and (min-height:840px)');
+function loadAds() {
+  if (!adMQ.matches) return;
+  adMQ.removeEventListener('change', loadAds);
 for (const [id, code] of [['#adl', typeof AD_LEFT === 'string' ? AD_LEFT : ''], ['#adr', typeof AD_RIGHT === 'string' ? AD_RIGHT : '']]) {
   if (!code.trim()) continue;
   const f = Object.assign(document.createElement('iframe'), {title: 'ad', loading: 'lazy', scrolling: 'no'});
   f.style.height = (parseInt(code.match(/'height'\s*:\s*(\d+)/)?.[1]) || 600) + 'px';  // banner's own height (600 or 300)
   f.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox');
   f.src = '/ad.html?s=' + (id === '#adr' ? 'r' : 'l');  // real page on our domain: ad networks check the site URL
-  $(id).append(f);
+  $(id).querySelector('small').after(f);
   $(id).classList.add('on');
 }
+}
+adMQ.addEventListener('change', loadAds);
+loadAds();
 
 if (GOATCOUNTER) {
   const s = Object.assign(document.createElement('script'), {async: true, src: 'https://gc.zgo.at/count.js'});

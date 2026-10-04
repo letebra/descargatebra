@@ -10,10 +10,10 @@ addStrings({
     k_badurl: 'Ese enlace no es de una plataforma compatible.', k_badfile: 'Ese tipo de archivo no sirve para esta herramienta.', k_items: n => `${n} elementos`,
     k_need_src: 'Primero pega un enlace o sube un archivo.', k_q: 'Calidad de salida',
     q_best: 'Máxima (hasta 4K)', q_1080: '1080p · Full HD', q_720: '720p · HD', q_480: '480p', q_small: 'La más ligera',
-    st_queue: 'En cola…', st_fetch: 'Analizando el enlace…', st_dl: 'Descargando…', st_proc: 'Procesando…', st_send: 'Enviando a tu equipo…', k_eta: 'quedan', k_of: (a, b) => `${a} de ${b}`,
+    st_queue: 'En cola…', st_fetch: 'Analizando el enlace…', st_dl: 'Descargando…', st_proc: 'Procesando…', st_send: 'Descargando el resultado…', k_eta: 'quedan', k_of: (a, b) => `${a} de ${b}`,
     stage_trim: 'Recortando', stage_compress: 'Comprimiendo', stage_merge: 'Uniendo', stage_vertical: 'Pasando a vertical', stage_audio: 'Procesando audio',
     stage_resize: 'Ajustando calidad', stage_convert: 'Convirtiendo', stage_gif: 'Creando el GIF', stage_frame: 'Sacando el fotograma', stage_watermark: 'Poniendo la marca',
-    k_done: '¡Listo! Ya está en tu equipo', k_again: 'Descargar', k_next: 'Sigue con:',
+    k_done: '¡Listo! Ya está en tu equipo', k_done_direct: '¡Listo! Se está descargando', k_again: 'Descargar', k_next: 'Sigue con:',
     k_start: 'Inicio', k_end: 'Final', k_len: 'Duración', k_play: 'Reproducir selección', k_tl_hint: 'Arrastra los tiradores o escribe los tiempos (m:ss.cc). Con ↑ ↓ ajustas de 0,01 s en 0,01 s.',
     k_tl_url: 'Para ver la línea de tiempo con imágenes, sube el archivo. Con enlace, escribe los tiempos.',
   },
@@ -23,10 +23,10 @@ addStrings({
     k_badurl: 'That link isn\'t from a supported platform.', k_badfile: 'That file type doesn\'t work with this tool.', k_items: n => `${n} items`,
     k_need_src: 'Paste a link or upload a file first.', k_q: 'Output quality',
     q_best: 'Max (up to 4K)', q_1080: '1080p · Full HD', q_720: '720p · HD', q_480: '480p', q_small: 'Smallest',
-    st_queue: 'Queued…', st_fetch: 'Reading the link…', st_dl: 'Downloading…', st_proc: 'Processing…', st_send: 'Sending to your device…', k_eta: 'left', k_of: (a, b) => `${a} of ${b}`,
+    st_queue: 'Queued…', st_fetch: 'Reading the link…', st_dl: 'Downloading…', st_proc: 'Processing…', st_send: 'Downloading the result…', k_eta: 'left', k_of: (a, b) => `${a} of ${b}`,
     stage_trim: 'Trimming', stage_compress: 'Compressing', stage_merge: 'Merging', stage_vertical: 'Making it vertical', stage_audio: 'Processing audio',
     stage_resize: 'Adjusting quality', stage_convert: 'Converting', stage_gif: 'Making the GIF', stage_frame: 'Grabbing the frame', stage_watermark: 'Adding the watermark',
-    k_done: 'Done! It\'s on your device', k_again: 'Download', k_next: 'Continue with:',
+    k_done: 'Done! It\'s on your device', k_done_direct: 'Done! It\'s downloading', k_again: 'Download', k_next: 'Continue with:',
     k_start: 'Start', k_end: 'End', k_len: 'Length', k_play: 'Play selection', k_tl_hint: 'Drag the handles or type the times (m:ss.cc). ↑ ↓ nudge by 0.01 s.',
     k_tl_url: 'Upload the file to see the timeline with frames. With a link, type the times.',
   },
@@ -241,13 +241,19 @@ export function jobRunner(tool) {
     if (st.eta && st.status === 'downloading') d.push(`${t('k_eta')} ${fmtDur(st.eta)}`);
     $('.pg-d', el).textContent = d.join(' · ');
   }
-  async function run(body, {entry = {}, preview = true, save = true} = {}) {
+  async function run(body, {entry = {}, preview = true, save = true, direct = false} = {}) {
     if (busy) return null;
     busy = true;
     el.innerHTML = `<div class="progress"><div class="progress-top"><span class="pg-l">${t('st_queue')}</span><span class="pg-r"></span></div><div class="bar indet"><i></i></div><small class="pg-d"></small></div>`;
     el.scrollIntoView({behavior: 'smooth', block: 'nearest'});
     try {
-      const r = await runJob(body, update);
+      const r = await runJob(body, update, {direct});
+      if (r.direct) {
+        el.innerHTML = `<div class="result"><div class="result-top"><span class="okdot">${icon('check')}</span><div><b>${t('k_done_direct')}</b><small>${esc(r.name)}${r.size ? ' · ' + fmtBytes(r.size) : ''}</small></div></div></div>`;
+        history.add({tool: tool.id, format: (r.name.split('.').pop() || '').toLowerCase(), ...entry, title: entry.title || r.name});
+        kofiNudge();
+        return r;
+      }
       if (save) await saveResult(r);
       showResult(el, tool, r, {preview, entry});
       return r;

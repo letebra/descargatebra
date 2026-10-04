@@ -131,8 +131,9 @@ function filenameFrom(res, fallback) {
   return m ? decodeURIComponent(m[1]) : fallback;
 }
 
-// Server job: create → poll progress → stream the file to the browser (with progress too).
-export async function runJob(body, onState = () => {}) {
+// Server job: create → poll progress → get the file. With {direct: true} the browser downloads it by itself
+// (its own download bar, nothing kept in memory); otherwise it's streamed here (previews, next tool).
+export async function runJob(body, onState = () => {}, {direct = false} = {}) {
   const {id} = await postJSON('/api/job', body);
   for (;;) {
     await sleep(650);
@@ -143,7 +144,14 @@ export async function runJob(body, onState = () => {}) {
     const st = await res.json();
     onState(st);
     if (st.status === 'error') throw new Error(errText(st.error));
-    if (st.status === 'done') break;
+    if (st.status === 'done') {
+      if (direct && st.result && !st.result.multi) {
+        const a = Object.assign(document.createElement('a'), {href: `/api/job/${id}/file`, download: st.result.name});
+        document.body.append(a); a.click(); a.remove();
+        return {direct: true, name: st.result.name, size: st.result.size};
+      }
+      break;
+    }
   }
   const res = await fetch(`/api/job/${id}/file`);
   if (!res.ok) throw new Error(t('e_generic'));

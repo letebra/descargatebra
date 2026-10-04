@@ -78,8 +78,13 @@ def video_format(quality: str) -> str:
         return "bv*+ba/b"
     if quality == "small":
         return "wv*[height>=240][ext=mp4]+wa[ext=m4a]/w[ext=mp4]/wv*+wa/w"
-    q = f"[height<={quality}]"
-    return f"bv*{q}[ext=mp4][vcodec^=avc]+ba[ext=m4a]/b{q}[ext=mp4]/bv*{q}+ba/b{q}/b"
+    return "bv*+ba/b"  # the size comes from format_sort (short side), see format_sort()
+
+
+def format_sort(quality: str) -> list[str] | None:
+    """Largest rendition whose short side fits the chosen quality (vertical videos too), H.264 + AAC first.
+    Picking it at the source avoids re-encoding a bigger one on our side, which is the slow part."""
+    return [f"res:{quality}", "vcodec:h264", "acodec:aac", "ext:mp4:m4a"] if quality.isdigit() else None
 
 
 class SelectiveGZip:
@@ -180,10 +185,25 @@ class Job:
         pct = round(100 * self.downloaded / self.total) if self.downloaded and self.total else None
         if self.status == "processing" and self.proc_pct is not None:
             pct = round(self.proc_pct)
-        return {"status": self.status, "pct": min(pct, 100) if pct is not None else None, "downloaded": self.downloaded,
-                "total": self.total, "speed": self.speed, "eta": self.eta, "current": self.current,
-                "count": self.count, "failed": self.failed, "error": self.error,
-                "stage": self.stage if self.status == "processing" else None}
+        st = {"status": self.status, "pct": min(pct, 100) if pct is not None else None, "downloaded": self.downloaded,
+              "total": self.total, "speed": self.speed, "eta": self.eta, "current": self.current,
+              "count": self.count, "failed": self.failed, "error": self.error,
+              "stage": self.stage if self.status == "processing" else None}
+        if self.status == "done" and self.result:
+            path, name, _, multi = self.result
+            st["result"] = {"name": name, "multi": multi, "size": path.stat().st_size if path.exists() else None}
+        return st
+
+    def __setattr__(self, key, value):
+        # keep how long each phase took, for the log line at the end of the job
+        if key == "status" and value != getattr(self, "status", None):
+            self.__dict__.setdefault("timeline", []).append((value, time.time()))
+        super().__setattr__(key, value)
+
+    def log(self, what: str):
+        marks = self.__dict__.get("timeline", [])
+        parts = [f"{s} {t2 - t1:.1f}s" for (s, t1), (_, t2) in zip(marks, marks[1:])]
+        print(f"[job {self.id[:6]}] {what} · {' · '.join(parts)} · total {time.time() - self.created:.1f}s", file=sys.stderr, flush=True)
 
 
 JOBS: dict[str, Job] = {}
@@ -275,9 +295,9 @@ def cookie_copy(workdir: str) -> str | None:
 def ydl_error(e: Exception) -> HTTPException:
     msg = str(e).lower()
     print(f"[yt-dlp] {e}", file=sys.stderr, flush=True)  # visible in Render -> Logs
-    if "not a bot" in msg or "confirm you" in msg:
+    if "not a bot" in msg:
         return HTTPException(403, "ytbot")
-    if "private" in msg or "login" in msg or "sign in" in msg:
+    if any(k in msg for k in ("private", "login", "log in", "sign in", "your age", "age-restricted", "age restricted")):
         return HTTPException(403, "private")
     if "unavailable" in msg or "not found" in msg or "404" in msg:
         return HTTPException(404, "notfound")
@@ -304,6 +324,8 @@ def fetch_ytdlp(url: str, fmt: str, quality: str, workdir: str, job: Job | None)
         opts["postprocessors"] = [{"key": "FFmpegExtractAudio", "preferredcodec": "mp3", "preferredquality": "192"}]
     else:
         opts["format"] = video_format(quality)
+        if format_sort(quality):
+            opts["format_sort"] = format_sort(quality)
         opts["merge_output_format"] = "mp4"
         opts["remuxvideo"] = "mp4"
     try:
@@ -359,7 +381,7 @@ def fit_quality(files: list[tuple[Path, str]], fmt: str, quality: str, job: Job 
         if info and min(info["width"], info["height"]) > cap:
             small = path.with_name(path.stem + f"_{cap}p.mp4")
             scale = f"scale=-2:{cap}" if info["width"] >= info["height"] else f"scale={cap}:-2"
-            run_ffmpeg(["-i", str(path), "-vf", scale, "-c:v", "libx264", "-preset", "veryfast", "-crf", "22",
+            run_ffmpeg(["-i", str(path), "-vf", scale, "-c:v", "libx264", "-preset", "superfast", "-crf", "22",
                         "-c:a", "copy", "-movflags", "+faststart", str(small)], job or Job(1), info["duration"], "resize")
             path = small
         out.append((path, name))
@@ -962,6 +984,8 @@ def run_job(job: Job, items: list[tuple[str | None, Item]], as_zip: bool, as_mer
     except Exception as e:
         print(f"[job] {type(e).__name__}: {e}", file=sys.stderr, flush=True)
         job.status, job.error = "error", "failed"
+    first = items[0][1] if items else None
+    job.log(f"{first.platform or 'file'} {first.format} {first.quality} op={first.op} {job.status}" if first else job.status)
 
 
 def cleanup():

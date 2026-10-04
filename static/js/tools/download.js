@@ -205,7 +205,7 @@ export function mount(root, {tool, page, handoff, params}) {
       if (!multi || items.length === 1) {
         const it = items[0];
         setStatus(it.row, 'run', t('st_queue'));
-        const r = await jr.run({items: [item(it)]}, {entry: {url: it.url, platform: it.platform, title: info[it.url]?.title, thumb: info[it.url]?.thumbnail || '', format: fmt, quality: q.value, detail: qLabel()}, preview: false});
+        const r = await jr.run({items: [item(it)]}, {entry: {url: it.url, platform: it.platform, title: info[it.url]?.title, thumb: info[it.url]?.thumbnail || '', format: fmt, quality: q.value, detail: qLabel()}, preview: false, direct: true});
         setStatus(it.row, r ? 'ok' : 'err', t(r ? 'st_ok' : 'st_err'));
         if (r) renderHist();
       } else if (getMode() === 'zip') {
@@ -217,8 +217,8 @@ export function mount(root, {tool, page, handoff, params}) {
             else if (i === st.current) rowProgress(it.row, st);
           });
           say('info', st.status === 'sending' ? `${t('st_send')} ${st.pct ?? ''}%` : t('k_of', Math.min(st.current + 1, st.count), st.count));
-        });
-        saveBlob(r.blob, r.name);
+        }, {direct: true});
+        if (!r.direct) saveBlob(r.blob, r.name);
         items.forEach(it => { if (!$('.status.err', it.row)) { setStatus(it.row, 'ok', t('st_zip')); addHist(it); } });
         say('info', t('d_zip_ok'));
         kofiNudge(); renderHist();
@@ -228,8 +228,8 @@ export function mount(root, {tool, page, handoff, params}) {
           setStatus(it.row, 'run', t('st_queue'));
           say('info', t('k_of', n + 1, items.length));
           try {
-            const r = await runJob({items: [item(it)]}, st => rowProgress(it.row, st));
-            await saveResult(r);
+            const r = await runJob({items: [item(it)]}, st => rowProgress(it.row, st), {direct: true});
+            if (!r.direct) await saveResult(r);
             setStatus(it.row, 'ok', t('st_ok')); ok++;
             addHist(it, r.name.replace(/\.[^.]+$/, ''));
           } catch (e) {

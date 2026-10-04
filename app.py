@@ -1,3 +1,4 @@
+import copy
 import hashlib
 import html
 import json
@@ -154,7 +155,7 @@ class Job:
         self.id = uuid.uuid4().hex
         self.created = time.time()
         self.workdir = tempfile.mkdtemp(prefix="dt_")
-        self.status = "queued"  # queued | downloading | processing | done | error
+        self.status = "queued"  # queued | fetching | downloading | processing | done | error
         self.count, self.current, self.failed = count, 0, []
         self.downloaded = self.total = self.speed = self.eta = None
         self.error = None
@@ -190,6 +191,30 @@ UPLOADS: dict[str, dict] = {}  # file_id -> {path, name, kind, created}
 # One extraction at a time: for YouTube each one runs Deno to solve the player's JS, and two at once
 # (e.g. preview + download) don't fit in a 512 MB instance. Downloads themselves run in parallel.
 EXTRACT = threading.Lock()
+# Raw extraction results (before format selection) for a few minutes: the preview (/api/info) and the
+# download of the same link share one extraction instead of doing the slow part twice.
+# The session cookies of that extraction travel with it (some sites, like TikTok, need them to download).
+INFO_CACHE: dict[str, tuple[float, dict, list]] = {}
+INFO_TTL, INFO_MAX = 15 * 60, 40
+
+
+def cached_info(url: str, ydl=None) -> dict | None:
+    hit = INFO_CACHE.get(url)
+    if not hit or time.time() - hit[0] > INFO_TTL:
+        return None
+    if ydl is not None:
+        for c in hit[2]:
+            ydl.cookiejar.set_cookie(copy.copy(c))
+    return copy.deepcopy(hit[1])
+
+
+def remember_info(url: str, info: dict, ydl):
+    if info.get("_type", "video") != "video" or not info.get("formats"):
+        return
+    if len(INFO_CACHE) >= INFO_MAX:
+        for k, _ in sorted(INFO_CACHE.items(), key=lambda kv: kv[1][0])[:INFO_MAX // 4]:
+            INFO_CACHE.pop(k, None)
+    INFO_CACHE[url] = (time.time(), copy.deepcopy(info), [copy.copy(c) for c in ydl.cookiejar])
 
 
 def host_ok(platform: str, host: str) -> bool:
@@ -283,8 +308,17 @@ def fetch_ytdlp(url: str, fmt: str, quality: str, workdir: str, job: Job | None)
         opts["remuxvideo"] = "mp4"
     try:
         with yt_dlp.YoutubeDL(opts) as ydl:
-            with EXTRACT:
-                info = ydl.extract_info(url, download=False)
+            info = cached_info(url, ydl)
+            if info is None:
+                if job and EXTRACT.locked():
+                    job.status = "queued"  # another link is being read right now
+                with EXTRACT:
+                    info = cached_info(url, ydl)  # the preview may have just read this same link
+                    if info is None:
+                        if job:
+                            job.status = "fetching"
+                        info = ydl.extract_info(url, download=False, process=False)
+                        remember_info(url, info, ydl)
             info = ydl.process_ie_result(info, download=True)
     except yt_dlp.utils.DownloadError as e:
         raise ydl_error(e)
@@ -338,6 +372,8 @@ def fetch(url: str, platform: str, fmt: str, quality: str, workdir: str, job: Jo
 
 def _fetch(url: str, platform: str, fmt: str, quality: str, workdir: str, job: Job | None) -> list[tuple[Path, str]]:
     gallery_err = None
+    if job:
+        job.status = "fetching"
     # Instagram posts (/p/) can be carousels with photos: try gallery-dl first.
     if fmt == "mp4" and platform == "instagram" and "/p/" in url:
         files, gallery_err = fetch_gallery(url, tempfile.mkdtemp(dir=workdir))
@@ -384,16 +420,23 @@ def add_unique(zf: zipfile.ZipFile, path: Path, name: str, used: set):
 
 def extract_page(url: str) -> dict:
     """Metadata of a URL without downloading (follows short links / channel roots)."""
+    hit = cached_info(url)
+    if hit is not None:
+        return hit
     tmp = tempfile.mkdtemp(prefix="dt_")
     opts = {"noplaylist": True, "quiet": True, "no_warnings": True, "skip_download": True,
             "socket_timeout": 15, "retries": 1, "cookiefile": cookie_copy(tmp)}
     try:
         with EXTRACT, yt_dlp.YoutubeDL(opts) as ydl:
+            data = cached_info(url)
+            if data is not None:
+                return data
             data = ydl.extract_info(url, download=False, process=False)
             for _ in range(2):
                 if data.get("_type") not in ("url", "url_transparent") or not data.get("url"):
                     break
                 data = ydl.extract_info(data["url"], download=False, process=False)
+            remember_info(url, data, ydl)
     except yt_dlp.utils.DownloadError as e:
         raise ydl_error(e)
     finally:

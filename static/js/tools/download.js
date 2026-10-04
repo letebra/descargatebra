@@ -181,6 +181,7 @@ export function mount(root, {tool, page, handoff, params}) {
   function rowProgress(row, st) {
     const bar = $('.rowbar', row);
     if (st.status === 'queued') return setStatus(row, 'run', t('st_queue'));
+    if (st.status === 'fetching') return setStatus(row, 'run', t('st_fetch'));
     if (st.status === 'processing') { setStatus(row, 'run', (st.stage ? t('stage_' + st.stage) : t('st_proc')) + (st.pct != null ? ` ${st.pct}%` : '')); bar.style.width = (st.pct ?? 100) + '%'; return; }
     setStatus(row, 'run', st.pct != null ? `${st.pct}%` : st.status === 'sending' ? t('st_send') : t('st_dl'));
     bar.style.width = (st.pct ?? 0) + '%';

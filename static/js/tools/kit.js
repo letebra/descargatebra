@@ -10,7 +10,7 @@ addStrings({
     k_badurl: 'Ese enlace no es de una plataforma compatible.', k_badfile: 'Ese tipo de archivo no sirve para esta herramienta.', k_items: n => `${n} elementos`,
     k_need_src: 'Primero pega un enlace o sube un archivo.', k_q: 'Calidad de salida',
     q_best: 'Máxima (hasta 4K)', q_1080: '1080p · Full HD', q_720: '720p · HD', q_480: '480p', q_small: 'La más ligera',
-    st_queue: 'En cola…', st_dl: 'Descargando…', st_proc: 'Procesando…', st_send: 'Enviando a tu equipo…', k_eta: 'quedan', k_of: (a, b) => `${a} de ${b}`,
+    st_queue: 'En cola…', st_fetch: 'Analizando el enlace…', st_dl: 'Descargando…', st_proc: 'Procesando…', st_send: 'Enviando a tu equipo…', k_eta: 'quedan', k_of: (a, b) => `${a} de ${b}`,
     stage_trim: 'Recortando', stage_compress: 'Comprimiendo', stage_merge: 'Uniendo', stage_vertical: 'Pasando a vertical', stage_audio: 'Procesando audio',
     stage_resize: 'Ajustando calidad', stage_convert: 'Convirtiendo', stage_gif: 'Creando el GIF', stage_frame: 'Sacando el fotograma', stage_watermark: 'Poniendo la marca',
     k_done: '¡Listo! Ya está en tu equipo', k_again: 'Descargar', k_next: 'Sigue con:',
@@ -23,7 +23,7 @@ addStrings({
     k_badurl: 'That link isn\'t from a supported platform.', k_badfile: 'That file type doesn\'t work with this tool.', k_items: n => `${n} items`,
     k_need_src: 'Paste a link or upload a file first.', k_q: 'Output quality',
     q_best: 'Max (up to 4K)', q_1080: '1080p · Full HD', q_720: '720p · HD', q_480: '480p', q_small: 'Smallest',
-    st_queue: 'Queued…', st_dl: 'Downloading…', st_proc: 'Processing…', st_send: 'Sending to your device…', k_eta: 'left', k_of: (a, b) => `${a} of ${b}`,
+    st_queue: 'Queued…', st_fetch: 'Reading the link…', st_dl: 'Downloading…', st_proc: 'Processing…', st_send: 'Sending to your device…', k_eta: 'left', k_of: (a, b) => `${a} of ${b}`,
     stage_trim: 'Trimming', stage_compress: 'Compressing', stage_merge: 'Merging', stage_vertical: 'Making it vertical', stage_audio: 'Processing audio',
     stage_resize: 'Adjusting quality', stage_convert: 'Converting', stage_gif: 'Making the GIF', stage_frame: 'Grabbing the frame', stage_watermark: 'Adding the watermark',
     k_done: 'Done! It\'s on your device', k_again: 'Download', k_next: 'Continue with:',
@@ -227,7 +227,7 @@ export function jobRunner(tool) {
   const el = h('<div class="jr" aria-live="polite"></div>');
   let busy = false;
   function update(st) {
-    const label = st.status === 'queued' ? t('st_queue') : st.status === 'processing' ? (st.stage ? t('stage_' + st.stage) : t('st_proc'))
+    const label = st.status === 'queued' ? t('st_queue') : st.status === 'fetching' ? t('st_fetch') : st.status === 'processing' ? (st.stage ? t('stage_' + st.stage) : t('st_proc'))
       : st.status === 'sending' ? t('st_send') : t('st_dl');
     const bar = $('.bar', el), pct = st.pct;
     if (!bar) return;

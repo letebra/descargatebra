@@ -287,12 +287,61 @@ class _NoRedirect(HTTPRedirectHandler):
 SHORT_HOSTS = ("tt.site",)  # share links yt-dlp doesn't know: we follow them to the real tiktok.com URL
 SHORT_CACHE: dict[str, str] = {}
 _no_redirect = build_opener(_NoRedirect)
+SHORT_UAS = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
+             "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1")
+
+
+def tiktok_link(text: str) -> str | None:
+    """A TikTok video URL found in a URL, a Location header or a page (also escaped JSON, app links or a bare video id)."""
+    text = text.replace("\\u002F", "/").replace("\\/", "/")
+    m = re.search(r"https?://(?:www\.|m\.)?tiktok\.com/@[^\s\"'<>?#\\]*/(?:video|photo)/\d+", text)
+    if m:
+        return m.group(0)
+    m = re.search(r"https?://(?:www\.)?tiktok\.com/t/\w+", text) or re.search(r"https?://v[mt]\.tiktok\.com/\w+", text)
+    if m:
+        return m.group(0)
+    m = (re.search(r"(?:tiktok\.com/(?:@[^/\s\"']*/)?(?:video|photo|v)/|aweme/detail/|/share/video/)(\d{15,21})", text)
+         or re.search(r"[\"'](?:itemId|item_id|aweme_id|awemeId|group_id)[\"']\s*:\s*[\"']?(\d{15,21})", text))
+    return f"https://www.tiktok.com/@_/video/{m.group(1)}" if m else None
 
 
 def expand_short(url: str) -> str:
     host = (urlparse(url).hostname or "").lower()
     if not any(host == h or host.endswith("." + h) for h in SHORT_HOSTS):
         return url
+    if url in SHORT_CACHE:
+        return SHORT_CACHE[url]
+    found, trail = None, []
+    for ua in SHORT_UAS:  # some short links only redirect for desktop browsers, others for phones
+        cur = url
+        try:
+            for _ in range(6):
+                try:
+                    with _no_redirect.open(UrlRequest(cur, headers={"User-Agent": ua, "Accept-Language": "es,en;q=0.8"}), timeout=10) as r:
+                        trail.append(f"200 {cur}")
+                        found = tiktok_link(r.read(600_000).decode("utf-8", "ignore"))
+                    break
+                except HTTPError as e:
+                    loc = e.headers.get("Location") if e.code in (301, 302, 303, 307, 308) else None
+                    trail.append(f"{e.code} {cur}")
+                    if not loc:
+                        break
+                    cur = urljoin(cur, loc)
+                    found = tiktok_link(cur)
+                    if found:
+                        break
+        except Exception as e:
+            trail.append(f"ERR {type(e).__name__}: {e}")
+        if found:
+            break
+    code = re.search(r"/t/(\w+)", urlparse(url).path)
+    if not found and code:  # last resort: same short code on TikTok's own short-link path
+        found = f"https://www.tiktok.com/t/{code.group(1)}/"
+        trail.append("fallback tiktok.com/t/")
+    print(f"[short] {url} -> {found or 'not resolved'} ({' | '.join(trail)[:600]})", file=sys.stderr, flush=True)
+    if found and not trail[-1].startswith("fallback"):
+        SHORT_CACHE[url] = found
+    return found or url
     if url in SHORT_CACHE:
         return SHORT_CACHE[url]
     cur, ua = url, {"User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"}

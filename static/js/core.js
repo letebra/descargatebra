@@ -104,7 +104,7 @@ export function detectPlatform(url) {
   try { h = new URL(/^https?:\/\//i.test(url) ? url : 'https://' + url).hostname.toLowerCase(); } catch { return null; }
   const is = d => h === d || h.endsWith('.' + d);
   if (is('instagram.com')) return 'instagram';
-  if (is('tiktok.com')) return 'tiktok';
+  if (is('tiktok.com') || is('tt.site')) return 'tiktok';
   if (is('x.com') || is('twitter.com')) return 'twitter';
   if (is('youtube.com') || is('youtu.be')) return url.includes('/shorts/') ? 'shorts' : 'youtube';
   if (is('facebook.com') || is('fb.watch') || is('fb.com')) return 'facebook';

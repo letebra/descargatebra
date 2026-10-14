@@ -14,8 +14,9 @@ import time
 import uuid
 import zipfile
 from pathlib import Path
-from urllib.parse import quote, urlencode, urlparse
-from urllib.request import Request as UrlRequest, urlopen
+from urllib.error import HTTPError
+from urllib.parse import quote, urlencode, urljoin, urlparse
+from urllib.request import HTTPRedirectHandler, Request as UrlRequest, build_opener, urlopen
 
 import yt_dlp
 from fastapi import FastAPI, HTTPException, Request
@@ -56,7 +57,7 @@ LOGIN_HINTS = ("login", "log in", "sign in", "401", "403", "private", "checkpoin
 
 PLATFORM_HOSTS = {
     "instagram": ("instagram.com",),
-    "tiktok": ("tiktok.com",),
+    "tiktok": ("tiktok.com", "tt.site"),  # tt.site/t/… is what the phone app copies
     "youtube": ("youtube.com", "youtu.be"),
     "shorts": ("youtube.com", "youtu.be"),
     "twitter": ("x.com", "twitter.com"),
@@ -275,6 +276,46 @@ def validate(item: Item) -> str | None:
         url = "https://" + url
     if not host_ok(item.platform, (urlparse(url).hostname or "").lower()):
         raise HTTPException(400, "mismatch")
+    return expand_short(url)
+
+
+class _NoRedirect(HTTPRedirectHandler):
+    def redirect_request(self, *args):
+        return None
+
+
+SHORT_HOSTS = ("tt.site",)  # share links yt-dlp doesn't know: we follow them to the real tiktok.com URL
+SHORT_CACHE: dict[str, str] = {}
+_no_redirect = build_opener(_NoRedirect)
+
+
+def expand_short(url: str) -> str:
+    host = (urlparse(url).hostname or "").lower()
+    if not any(host == h or host.endswith("." + h) for h in SHORT_HOSTS):
+        return url
+    if url in SHORT_CACHE:
+        return SHORT_CACHE[url]
+    cur, ua = url, {"User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"}
+    try:
+        for _ in range(6):
+            if (urlparse(cur).hostname or "").lower().endswith("tiktok.com"):
+                break
+            try:
+                with _no_redirect.open(UrlRequest(cur, headers=ua), timeout=10) as r:
+                    # no HTTP redirect: look for the video link inside the page (JS / meta refresh redirects)
+                    m = re.search(r"https?://(?:www\.|m\.)?tiktok\.com/@[^\s\"'<>?#]+/(?:video|photo)/\d+", r.read(400_000).decode("utf-8", "ignore"))
+                    cur = m.group(0) if m else cur
+                break
+            except HTTPError as e:
+                loc = e.headers.get("Location") if e.code in (301, 302, 303, 307, 308) else None
+                if not loc:
+                    break
+                cur = urljoin(cur, loc)
+    except Exception as e:
+        print(f"[short] {url}: {e}", file=sys.stderr, flush=True)
+    if (urlparse(cur).hostname or "").lower().endswith("tiktok.com"):
+        SHORT_CACHE[url] = cur
+        return cur
     return url
 
 
